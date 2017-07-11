@@ -1,0 +1,27 @@
+{
+  "name": "weather_station",
+  "version": "1.0.0",
+  "description": "a weatherstation node server",
+  "main": "server.js",
+  "dependencies": {
+    "chart.js": "^2.5.0",
+    "dateformat": "^2.0.0",
+    "express": "^4.15.2",
+    "google-spreadsheet": "^2.0.3",
+    "jquery": "^3.2.1",
+    "jsdom": "^9.12.0",
+    "jsonfile": "^2.4.0",
+    "serialport": "^4.0.7",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://94.198.66.59:16700/turbotage/WeatherStation.git"
+  },
+  "author": "vigge",
+  "license": "ISC"
+}
