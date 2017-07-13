@@ -9,7 +9,7 @@
 //Pins
 #define PIN_ANEMOMETER 2  //Digital 2
 #define PIN_RAINGAUGE 3 //Digital 3
-#define PIN_DIRECTION A0 //Analog 0
+#define PIN_DIRECTION A0 //Analog 0  
 #define BME_CS 10
 #define BME_MOSI 11
 #define BME_MISO 12
