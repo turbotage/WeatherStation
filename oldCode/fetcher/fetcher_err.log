@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found
+Traceback (most recent call last):
+  File "/home/turbotage/weather_station/fetcher/fetcher.py", line 16, in <module>
+    raise IOError("No Arduino found")
+IOError: No Arduino found

@@ -1,0 +1,83 @@
+<html>
+  <head>
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+  	<link rel="stylesheet" type="text/css" href="src/css/font-awesome.min.css"/>
+    <link rel="stylesheet" type="text/css" href="src/css/radar.css" />
+    <!-- Latest compiled and minified bootstrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <div id="headerMenu"></div>
+  </head>
+
+  <body>
+  	<!--<div class="container"> -->
+    	<div class="view" id="main">
+              <div id="side-view">
+                 <div class="pop-wrap hide-mobile" id="radar-more">
+                     <div class="pop-pad">
+                         <h2>Show and fetch Radar Images</h2>
+                     	 <h3>Data fetching might be slow if connection to SMHI servers are slow</h3>
+						 <p>Mark the day you wish to download data for in the calendar. Days with light blue colour have data. Radar images for chosen day will be displayed in the map. There are images for every 5 minutes. You can play or step through the day's images with the controlls under the map.</p>
+                     	
+                         <h3>Calendar</h3>
+                         <div id="radar-control-calendar"></div>
+
+                         <h3>Downloading</h3>
+                     	 <p>If you wish to, you can download the images for the chosen day. The images can be downloaded in PNG format or TIF format</p>
+                         <table class="full">
+                             <tr>
+                                 <td>
+                                     <a href="#" id="dl-png" class="btn dl"><i class="fa fa-download"></i>&nbsp;Ladda ned png</a>
+                                 </td>
+                                 <td>
+                                     <a href="#" id="dl-tif" class="btn dl"><i class="fa fa-download"></i>&nbsp;Ladda ned tif</a>
+                                 </td>
+                             </tr>
+                         </table>
+
+                         <h3>Units</h3>
+                         <p>Radarreflectivity (Z) is most often shown logarithmically and is then asigned the unit dBZ. SMHI converts Z to rainfall intensity (R i mm/h) with the folowing formula:</p>
+                         <p><code>Z=10log<sub>10</sub>(200R<sup>1.5</sup>)</code></p>
+                         <p>Usually, reflections lower than 5 dBZ aren't treated as rainfall (it can be birds, insects or other reflecting things), while reflections higher than 70 dBZ are less likely to occur in northern climats. Below is a table with some values converted from dBZ to mm/h.</p>
+                         <table class="full legend">
+                             <tr>
+                                 <th>Z</th><td>5</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td>
+                             </tr>
+                             <tr>
+                                 <th>R</th><td>0.06</td><td>0.14</td><td>0.29</td><td>0.63</td><td>1.36</td><td>2.92</td><td>6.30</td>
+                             </tr>
+                             <tr>
+                                 <th></th><td colspan="7">&nbsp;</td>
+                             </tr>
+                             <tr>
+                                 <th>Z</th><td>40</td><td>45</td><td>50</td><td>55</td><td>60</td><td>65</td><td>70</td>
+                             </tr>
+                             <tr>
+                                 <th>R</th><td>14</td><td>29</td><td>63</td><td>136</td><td>292</td><td>630</td><td>1357</td>
+                             </tr>
+                         </table>
+                     </div>
+                 </div>
+             </div>
+             <div id="radar-view"></div>
+          </div>
+    <!--</div>-->
+  </body>
+
+  <footer>
+    <!-- JS scripts -->
+    <script> $(function(){ $("#headerMenu").load("main_menu.html"); }); </script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  	<script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+  	<script src="src/js/jquery-sid-slider.js"></script>
+    <script src="src/js/jquery-sid-radar.js"></script>
+    <script src="src/js/jquery-sid-calendar.js"></script>
+    <script src="src/js/radar.js"></script>
+
+    <!-- CSS -->
+
+    
+  </footer>
+</html>
