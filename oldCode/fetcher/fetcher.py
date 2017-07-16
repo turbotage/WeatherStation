@@ -22,7 +22,7 @@ port = serial.Serial(arduino_ports[0], baudrate=9600)
 db = MySQLdb.connect("localhost","secret","secret","secret" )
 cursor = db.cursor()
 
-typeStrings = ['humidity', 'pressure', 'temperature', 'wind_direction', 'wind', 'wind_max', 'rainfall']
+typeStrings = ['humidity', 'pressure', 'temperature', 'rainfall', 'wind', 'wind_max', 'wind_direction']
 
 def readlineCR(port):
 	rv = ""

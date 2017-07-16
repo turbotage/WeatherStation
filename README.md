@@ -11,4 +11,7 @@
 #### PCB view
 ![Alt text](layout/PCB.png?raw=true "Breadboard view")
 
-### TODO
+### WOOP
+all passwords and keys stored in plaintext in the source will not be the same for the actual WeatherStation, and if you wish to use this project for your own weather-station, i suggest you change keys and passwords aswell
+
+

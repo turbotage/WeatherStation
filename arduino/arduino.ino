@@ -231,6 +231,15 @@ void softwareReset() {
 	Serial.println("hello");
 }
 
+void write(float input){
+	char* message = &input;
+	Serial.write(message, 4);
+}
+
+void write(String str){
+	Serial.write(str);
+}
+
 //setup
 void setup(){
     Serial.begin(9600);
@@ -252,81 +261,79 @@ void loop(){
     if(Serial.available() > 0){
 		int c = Serial.read();
 		switch (c) {
-			case '1':
+			case '0':
 				{
 					if (humidityCounter == 0) {
-						Serial.println(bme.readHumidity());
+						write(bme.readHumidity());
 					}
 					else {
 						float sender = humidity / humidityCounter;
 						humidity = 0;
 						humidityCounter = 0;
-						Serial.println(sender);
+						write(sender);
 					}
 				}
 				break;
-			case '2':
+			case '1':
 				{	
 					if (pressureCounter == 0) {
-						Serial.println(bme.readPressure() / 100.0f);
+						write(bme.readPressure() / 100.0f);
 					}
 					else {
 						float sender = pressure / pressureCounter;
 						pressure = 0;
 						pressureCounter = 0;
-						Serial.println(sender / 100.0f);
+						write(sender / 100.0f);
 					}
 				}
 				break;
-			case '3':
+			case '2':
 				{
 					if (tempCounter == 0) {
-						Serial.println(bme.readTemperature());
+						write(bme.readTemperature());
 					}
 					else {
 						float sender = temperature / tempCounter;
 						temperature = 0;
 						tempCounter = 0;
-						Serial.println(sender);
+						write(sender);
 					}
 				}
+				break;
+			case '3':
+				write(calcRainFall());
 				break;
 			case '4':
-				{
-					String dir = getWindDir();
-					if (dir == "NO_DIR") {
-						dir = calcWindDirOnce();
-					}
-					Serial.println(dir);
-				}
+				currentWind = calcWindSpeed();
+				write(currentWind);
 				break;
 			case '5':
-				currentWind = calcWindSpeed();
-				Serial.println(currentWind);
-				break;
-			case '6':
 				if (highestGust < currentWind) {
 					highestGust = currentWind + currentWind*0.22; //if an error has occured the highest gust will probably be the upper standard deviation
 				}
-				Serial.println(highestGust);
+				write(highestGust);
 				resetGust();
 				break;
-			case '7':
-				Serial.println(calcRainFall());
+			case '6':
+				String dir = getWindDir();
+				if (dir == "NO_DIR") {
+					dir = calcWindDirOnce();
+				}
+				write(dir);
 				break;
 			case 'E':
-				Serial.println(lastError);
+				write(lastError);
 				lastError = "";
 				break;
 			case 'T':
-				Serial.println(millis());
+				write(millis());
 				break;
 			case 'R':
-				Serial.println("reset");
+				write("reset");
 				softwareReset();
 				break;
 			default:
-				Serial.println("NCC");
+				write("NCC");
 		}
     }
 	calcWindGust();
@@ -336,3 +343,4 @@ void loop(){
 		softwareReset(); //resets the arduino after aprox 49 days and 17 hours
 	}
 }
+
