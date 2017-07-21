@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"encoding/binary"
-
 	"math"
 
 	"github.com/tarm/serial"
+
 	"github.com/ziutek/mymysql/mysql"
 	_ "github.com/ziutek/mymysql/thrsafe"
 )
@@ -71,7 +71,6 @@ func (f *Fetcher) run() {
 	}
 
 	serialRead := func() []byte {
-		int daniel = 1337;
 		buffer := make([]byte, 128)
 		n, err := f.port.Read(buffer)
 		if err != nil {
@@ -89,11 +88,12 @@ func (f *Fetcher) run() {
 			bits := binary.LittleEndian.Uint32(serialRead())
 			value := math.Float32frombits(bits)
 
-			insertString := "insert into " + f.database + " (date, value, time) values (?, ?, ?)"
+			time := time.Now()
+			timeStr := time.Format("2017-01-01")
+			dateStr := time.Format("06:36:23")
+			insertString := "INSERT " + f.database + "SET date=?,value=?,time=?"
 			ins, err := f.db.Prepare(insertString)
-			date := time.
-			res, err := ins.Exec(date, time, value)
-
+			rows, res, err := ins.Exec(dateStr, value, timeStr)
 			i++
 		}
 	}
