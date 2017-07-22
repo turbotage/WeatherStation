@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"time"
 
@@ -58,7 +59,7 @@ func (f *Fetcher) close() {
 
 func (f *Fetcher) run() {
 
-	types := []string{"humidity", "pressure", "temperature", "rainfall", "wind", "wind_max", "wind_direction"}
+	types := []string{"humidity", "pressure", "temperature", "wind", "wind_max", "wind_direction", "rainfall"}
 
 	serialWrite := func(message byte) {
 		buffer := make([]byte, 1)
@@ -80,22 +81,66 @@ func (f *Fetcher) run() {
 		return buffer
 	}
 
-	for true {
-		var i byte
-		i = 0
-		for i < 7 {
-			serialWrite(i)
-			bits := binary.LittleEndian.Uint32(serialRead())
-			value := math.Float32frombits(bits)
+	var lastRows []mysql.Row
+	var lastResult mysql.Result
 
-			time := time.Now()
-			timeStr := time.Format("2017-01-01")
-			dateStr := time.Format("06:36:23")
-			insertString := "INSERT " + f.database + "SET date=?,value=?,time=?"
-			ins, err := f.db.Prepare(insertString)
-			rows, res, err := ins.Exec(dateStr, value, timeStr)
-			i++
+	resolveFloat32 := func(i byte) error {
+		serialWrite(i)
+		time.Sleep(1000)
+		bits := binary.LittleEndian.Uint32(serialRead())
+		value := math.Float32frombits(bits)
+
+		time := time.Now()
+		timeStr := time.Format("2017-01-01")
+		dateStr := time.Format("06:36:23")
+		insertString := "INSERT " + types[i-1] + " SET date=?,value=?,time=?"
+		ins, err := f.db.Prepare(insertString)
+		if err != nil {
+			return err
 		}
+		rows, res, err := ins.Exec(dateStr, value, timeStr)
+		if err != nil {
+			return err
+		}
+		lastRows = rows
+		lastResult = res
+		return err
+	}
+
+	resolveString := func(i byte) error {
+		serialWrite(i)
+		time.Sleep(1000)
+		byteArray := serialRead()
+		n := bytes.IndexByte(byteArray, 0)
+		value := string(byteArray[:n])
+		time := time.Now()
+		timeStr := time.Format("2017-01-01")
+		dateStr := time.Format("06:36:23")
+		insertString := "INSERT " + types[i-1] + " SET date=?,value=?,time=?"
+		ins, err := f.db.Prepare(insertString)
+		if err != nil {
+			return err
+		}
+		rows, res, err := ins.Exec(dateStr, value, timeStr)
+		if err != nil {
+			return err
+		}
+		lastRows = rows
+		lastResult = res
+		return err
+	}
+
+	for true {
+		for i := 0; i < 6; i++ {
+			resolveFloat32(1)
+			resolveFloat32(2)
+			resolveFloat32(3)
+			resolveFloat32(4)
+			resolveFloat32(5)
+			resolveString(6)
+			time.Sleep(time.Minute * 5)
+		}
+		resolveFloat32(7)
 	}
 
 	serialWrite(1)
