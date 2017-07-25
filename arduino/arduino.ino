@@ -1,7 +1,7 @@
+#include <avr\wdt.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>
-#include <avr\wdt.h>
 #include "Adafruit_BME280.h"
 
 #define GUST_TIME 5000
@@ -18,6 +18,7 @@
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 String lastError = "NO ERROR";
+String message = "";
 
 volatile long nextInteruptTime = 0;
 
@@ -69,11 +70,15 @@ void countAnemometer() {
 void countRainGauge() {
 	numDropsRainGauge++;
 }
+
+void addMessage(const char* m){
+	message += m + "\n";
+}
+
 //=======================================================
 // Calculate the wind speed, and display it (or log it, whatever).
 // 1 rev/sec = 1.492 mph = 2.40114125 kph
 //=======================================================
-
 double calcWindSpeed() {
 	double x = 0;
 	x = 2.40114125*numRevsAnemometer/3.6;
@@ -228,7 +233,7 @@ void updateHumidityTempPressure() {
 void softwareReset() {
 	wdt_enable(WDTO_2S);
 	while (true);
-	Serial.println("hello");
+	addMessage("awake")
 }
 
 void write(float input){
@@ -261,7 +266,7 @@ void loop(){
     if(Serial.available() > 0){
 		int c = Serial.read();
 		switch (c) {
-			case '0':
+			case '1':
 				{
 					if (humidityCounter == 0) {
 						write(bme.readHumidity());
@@ -274,7 +279,7 @@ void loop(){
 					}
 				}
 				break;
-			case '1':
+			case '2':
 				{	
 					if (pressureCounter == 0) {
 						write(bme.readPressure() / 100.0f);
@@ -287,7 +292,7 @@ void loop(){
 					}
 				}
 				break;
-			case '2':
+			case '3':
 				{
 					if (tempCounter == 0) {
 						write(bme.readTemperature());
@@ -300,26 +305,26 @@ void loop(){
 					}
 				}
 				break;
-			case '3':
-				write(calcRainFall());
-				break;
 			case '4':
+				String dir = getWindDir();
+				if (dir == "NO_DIR") {
+					dir = calcWindDirOnce();
+				}
+				write(dir);
+				break;
+			case '5':
 				currentWind = calcWindSpeed();
 				write(currentWind);
 				break;
-			case '5':
+			case '6':
 				if (highestGust < currentWind) {
 					highestGust = currentWind + currentWind*0.22; //if an error has occured the highest gust will probably be the upper standard deviation
 				}
 				write(highestGust);
 				resetGust();
 				break;
-			case '6':
-				String dir = getWindDir();
-				if (dir == "NO_DIR") {
-					dir = calcWindDirOnce();
-				}
-				write(dir);
+			case '7':
+				write(calcRainFall());
 				break;
 			case 'E':
 				write(lastError);
@@ -328,8 +333,11 @@ void loop(){
 			case 'T':
 				write(millis());
 				break;
+			case 'M':
+				write(message);
+				break;
 			case 'R':
-				write("reset");
+				addMessage("reset")
 				softwareReset();
 				break;
 			default:

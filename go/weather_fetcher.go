@@ -35,16 +35,18 @@ type Fetcher struct {
 	db     mysql.Conn
 }
 
-func (f *Fetcher) initDatabaseConnection() {
-	f.db = mysql.New("tcp", "127.0.0.1:3306", "secret", "secret", "secret")
+func (f *Fetcher) initDatabaseConnection(c *CmdArgs) {
+	f.db = mysql.New("tcp", "", *c.dbConPtr, *c.dbUserPtr, *c.dbPassPtr, *c.dbNamePtr)
 	err := f.db.Connect()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (f *Fetcher) initWeatherStationConnection() {
-	f.config = &serial.Config{Name: "/dev/ttyACM0", Baud: 9600, ReadTimeout: time.Second * 2}
+func (f *Fetcher) initWeatherStationConnection(c *CmdArgs) {
+	multiplier := *c.wsReadTimeoutPtr
+	time := time.Duration(1000000 * multiplier)
+	f.config = &serial.Config{Name: *c.wsPortPtr, Baud: 9600, ReadTimeout: time}
 	s, err := serial.OpenPort(f.config)
 	if err != nil {
 		log.Fatal(err)
@@ -59,7 +61,7 @@ func (f *Fetcher) close() {
 
 func (f *Fetcher) run() {
 
-	types := []string{"humidity", "pressure", "temperature", "wind", "wind_max", "wind_direction", "rainfall"}
+	types := []string{"humidity", "pressure", "temperature", "wind_direction", "wind", "wind_max", "rainfall"}
 
 	serialWrite := func(message byte) {
 		buffer := make([]byte, 1)
@@ -93,7 +95,7 @@ func (f *Fetcher) run() {
 		time := time.Now()
 		timeStr := time.Format("2017-01-01")
 		dateStr := time.Format("06:36:23")
-		insertString := "INSERT " + types[i-1] + " SET date=?,value=?,time=?"
+		insertString := "INSERT INTO" + types[i-1] + " SET date=?,value=?,time=?"
 		ins, err := f.db.Prepare(insertString)
 		if err != nil {
 			return err
@@ -116,7 +118,7 @@ func (f *Fetcher) run() {
 		time := time.Now()
 		timeStr := time.Format("2017-01-01")
 		dateStr := time.Format("06:36:23")
-		insertString := "INSERT " + types[i-1] + " SET date=?,value=?,time=?"
+		insertString := "INSERT INTO" + types[i-1] + " SET date=?,value=?,time=?"
 		ins, err := f.db.Prepare(insertString)
 		if err != nil {
 			return err
