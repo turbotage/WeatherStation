@@ -237,8 +237,8 @@ void softwareReset() {
 }
 
 void write(float input){
-	char* message = &input;
-	Serial.write(message, 4);
+	byte * b = (byte*) &input;
+	Serial.write(b, 4);
 }
 
 void write(String str){
