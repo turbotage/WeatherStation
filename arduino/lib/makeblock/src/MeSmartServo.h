@@ -34,14 +34,14 @@
  *    7. uint8_t MeSmartServo::sendFloat(float val);
  *    8. uint8_t MeSmartServo::sendLong(long val);
  *    9. boolean MeSmartServo::assignDevIdRequest(void);
- *    10. boolean MeSmartServo::moveTo(uint8_t dev_id,long angle_value,float speed);
- *    11. boolean MeSmartServo::move(uint8_t dev_id,long angle_value,float speed);
+ *    10. boolean MeSmartServo::moveTo(uint8_t dev_id,long angle_value,float speed,smartServoCb callback);
+ *    11. boolean MeSmartServo::move(uint8_t dev_id,long angle_value,float speed,smartServoCb callback);
  *    12. boolean MeSmartServo::setZero(uint8_t dev_id);
  *    13. boolean MeSmartServo::setBreak(uint8_t dev_id, uint8_t breakStatus);
  *    14. boolean MeSmartServo::setRGBLed(uint8_t dev_id, uint8_t r_value, uint8_t g_value, uint8_t b_value);
  *    15. boolean MeSmartServo::handSharke(uint8_t dev_id);
  *    16. boolean MeSmartServo::setPwmMove(uint8_t dev_id, int16_t pwm_value);
- *    17. boolean MeSmartServo::setInitAngle(uint8_t dev_id);
+ *    17. boolean MeSmartServo::setInitAngle(uint8_t dev_id,uint8_t mode,int16_t speed);
  *    18. long MeSmartServo::getAngleRequest(uint8_t devId);
  *    19. float MeSmartServo::getSpeedRequest(uint8_t devId);
  *    20. float MeSmartServo::getVoltageRequest(uint8_t devId);
@@ -114,6 +114,7 @@
   #define SET_SERVO_PWM_MOVE                     0x35
   #define GET_SERVO_CUR_ANGLE                    0x36
   #define SET_SERVO_INIT_ANGLE                   0x37
+  #define REPORT_WHEN_REACH_THE_SET_POSITION     0x40
 
 #define START_SYSEX             0xF0 // start a MIDI Sysex message
 #define END_SYSEX               0xF7 // end a MIDI Sysex message
@@ -172,6 +173,8 @@ typedef struct
   float temperature;
   float current;
 }servo_device_type;
+
+typedef void (*smartServoCb)(uint8_t); 
 
 /**
  * Class: MeSmartServo
@@ -382,6 +385,8 @@ public:
  *    angle_value - the absolute angle value we want move to.
  * \param[in]
  *    speed - move speed value(The unit is rpm).
+ * \param[in]
+ *    callback - callback function when the target position has been reached(Optional parameters).
  * \par Output
  *   None
  * \return
@@ -389,7 +394,7 @@ public:
  * \par Others
  *   None
  */
-  boolean moveTo(uint8_t dev_id,long angle_value,float speed);
+  boolean moveTo(uint8_t dev_id,long angle_value,float speed,smartServoCb callback = NULL);
 
 /**
  * \par Function
@@ -402,6 +407,8 @@ public:
  *    angle_value - the relative angle value we want move to.
  * \param[in]
  *    speed - move speed value(The unit is rpm).
+ * \param[in]
+ *    callback - callback function when the target position has been reached(Optional parameters).
  * \par Output
  *   None
  * \return
@@ -409,7 +416,7 @@ public:
  * \par Others
  *   None
  */
-  boolean move(uint8_t dev_id,long angle_value,float speed);
+  boolean move(uint8_t dev_id,long angle_value,float speed,smartServoCb callback = NULL);
 
 /**
  * \par Function
@@ -508,6 +515,10 @@ public:
  *   This function is used to move smart servo to its 0 degrees.
  * \param[in]
  *    dev_id - the device id of servo that we want to set.
+ * \param[in]
+ *    mode - the return mode,  0 is the quick return mode. 
+ * \param[in]
+ *    speed - the speed value return to init angle.
  * \par Output
  *   None
  * \return
@@ -515,7 +526,7 @@ public:
  * \par Others
  *   None
  */
-  boolean setInitAngle(uint8_t dev_id);
+  boolean setInitAngle(uint8_t dev_id,uint8_t = 0,int16_t = 40);
 
 /**
  * \par Function
@@ -680,9 +691,11 @@ public:
 private:
   union sysex_message sysex;
   volatile int16_t sysexBytesRead;
+  volatile uint8_t servo_num_max;
   volatile uint16_t resFlag;
   volatile servo_device_type servo_dev_list[8];
   volatile long cmdTimeOutValue;
   volatile boolean parsingSysex;
+  smartServoCb _callback;
 };
 #endif

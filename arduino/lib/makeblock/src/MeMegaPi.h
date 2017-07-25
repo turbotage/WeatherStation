@@ -3,7 +3,7 @@
  * \brief   Driver for MegaPi board.
  * @file    MeMegaPi.h
  * @author  MakeBlock
- * @version V1.0.4
+ * @version V1.0.5
  * @date    2016/09/23
  * @brief   Driver for MegaPi board.
  *
@@ -30,6 +30,7 @@
  * Scott wang       2016/09/18     1.0.2            Add the PORT[15].
  * Scott            2016/09/20     1.0.3            Add the PORT[16].
  * Scott            2016/09/23     1.0.4            Add the MePS2.h .
+ * Zzipeng          2017/02/20     1.0.5            put the array megaPi_slots[4] to MegaPi.h
  * </pre>
  */
 #ifndef MeMegaPi_H
@@ -113,4 +114,12 @@ megapi_dc_type megapi_dc_Port[14] =
   {36,37, 8}, {42,43, 9}, {A5,A4, 5},
 };
 
+megaPi_slot_type megaPi_slots[4] =
+{
+  {35,   34,   33,   32,   31,  18,  12,   11},
+  {36,   37,   40,   41,   38,  19,   8,   7},
+  {42,   43,   47,   48,   49,   3,   9,   6},
+  {A5,   A4,   A3,   A2,   A1,   2,   5,   4},    // for megapi
+};
+//for step motor on board
 #endif // MeMegaPi_H
