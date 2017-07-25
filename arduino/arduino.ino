@@ -233,16 +233,6 @@ void updateHumidityTempPressure() {
 void softwareReset() {
 	wdt_enable(WDTO_2S);
 	while (true);
-	addMessage("awake")
-}
-
-void write(float input){
-	byte * b = (byte*) &input;
-	Serial.write(b, 4);
-}
-
-void write(String str){
-	Serial.write(str);
 }
 
 //setup
@@ -269,79 +259,80 @@ void loop(){
 			case '1':
 				{
 					if (humidityCounter == 0) {
-						write(bme.readHumidity());
+						Serial.println(bme.readHumidity());
 					}
 					else {
 						float sender = humidity / humidityCounter;
 						humidity = 0;
 						humidityCounter = 0;
-						write(sender);
+						Serial.println(sender);
 					}
 				}
 				break;
 			case '2':
 				{	
 					if (pressureCounter == 0) {
-						write(bme.readPressure() / 100.0f);
+						Serial.println(bme.readPressure() / 100.0f);
 					}
 					else {
 						float sender = pressure / pressureCounter;
 						pressure = 0;
 						pressureCounter = 0;
-						write(sender / 100.0f);
+						Serial.println(sender / 100.0f);
 					}
 				}
 				break;
 			case '3':
 				{
 					if (tempCounter == 0) {
-						write(bme.readTemperature());
+						Serial.println(bme.readTemperature());
 					}
 					else {
 						float sender = temperature / tempCounter;
 						temperature = 0;
 						tempCounter = 0;
-						write(sender);
+						Serial.println(sender);
 					}
 				}
 				break;
 			case '4':
-				String dir = getWindDir();
-				if (dir == "NO_DIR") {
-					dir = calcWindDirOnce();
+				{
+					String dir = getWindDir();
+					if (dir == "NO_DIR") {
+						dir = calcWindDirOnce();
+					}
+					Serial.println(dir);
 				}
-				write(dir);
 				break;
 			case '5':
 				currentWind = calcWindSpeed();
-				write(currentWind);
+				Serial.println(currentWind);
 				break;
 			case '6':
 				if (highestGust < currentWind) {
 					highestGust = currentWind + currentWind*0.22; //if an error has occured the highest gust will probably be the upper standard deviation
 				}
-				write(highestGust);
+				Serial.println(highestGust);
 				resetGust();
 				break;
 			case '7':
-				write(calcRainFall());
+				Serial.println(calcRainFall());
 				break;
 			case 'E':
-				write(lastError);
+				Serial.println(lastError);
 				lastError = "";
 				break;
 			case 'T':
-				write(millis());
+				Serial.println(millis());
 				break;
 			case 'M':
-				write(message);
+				Serial.println(message);
 				break;
 			case 'R':
-				addMessage("reset")
 				softwareReset();
 				break;
 			default:
-				write("NCC");
+				Serial.println("NCC");
 		}
     }
 	calcWindGust();
