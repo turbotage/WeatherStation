@@ -19,6 +19,10 @@ type CmdArgs struct {
 	wsPortPtr        *string
 	wsBaudPtr        *int
 	wsReadTimeoutPtr *int
+
+	//run settings
+	runFetcherPtr   *bool
+	runWebServerPtr *bool
 }
 
 func (c *CmdArgs) commandLineHandler() {
@@ -36,11 +40,13 @@ func (c *CmdArgs) commandLineHandler() {
 	c.wsBaudPtr = flag.Int("ws_baudrate", 9600, "the baudrate to use for serial comms with arduino")
 	c.wsReadTimeoutPtr = flag.Int("ws_readtimeout", 2000, "the amount of milliseconds the connection shall wait before ending an atempt to read")
 
+	c.runFetcherPtr = flag.Bool("run_fetcher", true, "set to false to run without fetcher, defaults to true")
+	c.runWebServerPtr = flag.Bool("run_webserver", true, "set to false to run without webserver, defaults to true")
+
 	flag.Parse()
 }
 
 func runFetcher(c *CmdArgs) {
-
 	var fetcher Fetcher
 	fetcher.initWeatherStationConnection(c)
 	defer fetcher.db.Close()
@@ -52,15 +58,19 @@ func runFetcher(c *CmdArgs) {
 func runWebServer(c *CmdArgs) {
 	var webServer WebServer
 	webServer.init(c)
-	webServer.run()
+	webServer.run(c)
 }
 
 func main() {
 	var cmdArgs CmdArgs
 	cmdArgs.commandLineHandler()
 
-	go runFetcher(&cmdArgs)
+	if *cmdArgs.runFetcherPtr == true {
+		go runFetcher(&cmdArgs)
+	}
 
-	go runWebServer(&cmdArgs)
+	if *cmdArgs.runWebServerPtr == true {
+		go runWebServer(&cmdArgs)
+	}
 
 }

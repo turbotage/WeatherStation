@@ -19,6 +19,7 @@
 
 String lastError = "NO ERROR";
 String message = "";
+bool debug = false;
 
 volatile long nextInteruptTime = 0;
 
@@ -26,7 +27,7 @@ volatile long nextInteruptTime = 0;
 volatile int numDropsRainGauge = 0;
 volatile unsigned long timeAtRainUpdate = 0;
 //wind
-float currentWind;
+float currentWind = 0;
 volatile int numRevsAnemometer = 0;
 volatile unsigned long timeAtWindUpdate = 0;
 
@@ -85,6 +86,12 @@ double calcWindSpeed() {
 	double timer = 0.00000001;
 	timer += (millis() - timeAtWindUpdate)/1000; //seconds since last update
 	x /= timer;
+	if(debug){
+		Serial.print("numDropsRainGauge: ");
+		Serial.println(numDropsRainGauge);
+		Serial.print("time since last calcRainFall() : ");
+		Serial.println(timer);
+	}
 	numRevsAnemometer = 0;        // Reset counter
 	timeAtWindUpdate = millis(); //set last update to now so next  wind callculation will be since this one
 	if (x > 100 || x < 0) {
@@ -102,6 +109,12 @@ double calcRainFall() {
 	double timer = 0.00000001;
 	timer += (millis() - timeAtRainUpdate)/1000; //get seconds since last raincallculation
 	double rain = (3600 * x)/timer; //take volume per time and convert to right format (mm/h)
+	if(debug){
+		Serial.print("numDropsRainGauge: ");
+		Serial.println(numDropsRainGauge);
+		Serial.print("time since last calcRainFall() : ");
+		Serial.println(timer);
+	}
 	numDropsRainGauge = 0;        // Reset counter
 	timeAtRainUpdate = millis(); //set last update to now so next rain callculation will be since this one
 	if (rain > 100 || rain < 0) {
@@ -200,7 +213,7 @@ String calcWindDir() {
 }
 
 void updateWindDirArray() {
-	unsigned long timu = millis() % 10000;
+	unsigned long timu = millis() % 5000;
 	if ((timu >= 0) && (timu <= 100)) {
 		if (!windDirHasUpdated) {
 			windDirHasUpdated = true;
@@ -258,7 +271,10 @@ void loop(){
 		switch (c) {
 			case '1':
 				{
-					if (humidityCounter == 0) {
+					if (debug){
+						Serial.println(bme.readHumidity());
+					}
+					else if (humidityCounter == 0) {
 						Serial.println(bme.readHumidity());
 					}
 					else {
@@ -271,7 +287,10 @@ void loop(){
 				break;
 			case '2':
 				{	
-					if (pressureCounter == 0) {
+					if (debug){
+						Serial.println(bme.readPressure() / 100.0f);
+					}
+					else if (pressureCounter == 0) {
 						Serial.println(bme.readPressure() / 100.0f);
 					}
 					else {
@@ -284,7 +303,10 @@ void loop(){
 				break;
 			case '3':
 				{
-					if (tempCounter == 0) {
+					if (debug){
+						Serial.println(bme.readTemperature / 100.0f);
+					}
+					else if (tempCounter == 0) {
 						Serial.println(bme.readTemperature());
 					}
 					else {
@@ -297,11 +319,16 @@ void loop(){
 				break;
 			case '4':
 				{
-					String dir = getWindDir();
-					if (dir == "NO_DIR") {
-						dir = calcWindDirOnce();
+					if(debug){
+						Serial.println(calcWindDirOnce());
 					}
-					Serial.println(dir);
+					else {
+						String dir = getWindDir();
+						if (dir == "NO_DIR") {
+							dir = calcWindDirOnce();
+						}
+						Serial.println(dir);
+					}
 				}
 				break;
 			case '5':
@@ -311,6 +338,7 @@ void loop(){
 			case '6':
 				if (highestGust < currentWind) {
 					highestGust = currentWind + currentWind*0.22; //if an error has occured the highest gust will probably be the upper standard deviation
+					addMessage("CALCULATED HIGHEST GUST WITH STANDARD DEVIATION : ");
 				}
 				Serial.println(highestGust);
 				resetGust();
@@ -327,9 +355,14 @@ void loop(){
 				break;
 			case 'M':
 				Serial.println(message);
+				message = "";
 				break;
 			case 'R':
+				Serial.println("Reseting");
 				softwareReset();
+				break;
+			case 'D':
+				debug = !debug;
 				break;
 			default:
 				Serial.println("NCC");

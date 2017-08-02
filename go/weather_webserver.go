@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -41,7 +42,14 @@ func (w *WebServer) init(c *CmdArgs) {
 	w.fs = http.FileServer(http.Dir("static_website"))
 }
 
-func (w *WebServer) handleRequest(so socketio.Socket) {
+type ClientData struct {
+	weatherType string
+	startDate   string
+	endDate     string
+	chart       int
+}
+
+func (w *WebServer) handleRequest(so *socketio.Socket, c *ClientData) {
 
 }
 
@@ -49,10 +57,21 @@ func (w *WebServer) run(c *CmdArgs) {
 
 	w.server.On("connection", func(so socketio.Socket) {
 		log.Println("on connection")
-
-		so.Join("chat")
+		
+		so.Join("weather")
 
 		so.On("request", func(msg string) {
+			var dat map[string]interface{}
+			byt := []byte(msg)
+			if err := json.Unmarshal(byt, &dat); err != nil {
+				log.Fatal(err)
+			}
+			var c ClientData
+			c.weatherType := dat["type"].(string)
+			c.startDate := dat["startDate"].(string)
+			c.endDate := dat["endDate"].(string)
+			c.chart := dat["chart"].(int)
+			handleRequest(&so, &c)
 			log.Println("emit:", so.Emit("chat message", msg))
 			so.BroadcastTo("chat", "chat message", msg)
 		})
