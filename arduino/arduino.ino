@@ -73,7 +73,7 @@ void countRainGauge() {
 }
 
 void addMessage(const char* m){
-	message += m + "\n";
+	message += m + *("\n");
 }
 
 //=======================================================
@@ -304,7 +304,7 @@ void loop(){
 			case '3':
 				{
 					if (debug){
-						Serial.println(bme.readTemperature / 100.0f);
+						Serial.println(bme.readTemperature() / 100.0f);
 					}
 					else if (tempCounter == 0) {
 						Serial.println(bme.readTemperature());
