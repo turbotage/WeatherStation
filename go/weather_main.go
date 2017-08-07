@@ -15,6 +15,7 @@ type CmdArgs struct {
 	httpsPortPtr     *string
 	httpsKeyFilePtr  *string
 	httpsCertFilePtr *string
+	httpsFolderName  *string
 	//weatherstation
 	wsPortPtr        *string
 	wsBaudPtr        *int
@@ -35,6 +36,7 @@ func (c *CmdArgs) commandLineHandler() {
 	c.httpsPortPtr = flag.String("https_port", "443", "the port to serve https at")
 	c.httpsKeyFilePtr = flag.String("https_keyfile", "key.pem", "the file that contains the key for tls")
 	c.httpsCertFilePtr = flag.String("https_certfile", "cert.pem", "the file that contains the certification for tls")
+	c.httpsFolderName = flag.String("https_foldername", "static", "the name of the folder that contains the files to be served")
 	//weatherstation
 	c.wsPortPtr = flag.String("ws_port", "/dev/ttyACM0", "arduino serial port")
 	c.wsBaudPtr = flag.Int("ws_baudrate", 9600, "the baudrate to use for serial comms with arduino")

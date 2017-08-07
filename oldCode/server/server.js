@@ -20,41 +20,41 @@ function weatherQuery(command, socket){
   var query1 = connection.query(queryCommand1, function(err1, rows1, result1){
     if(err1) throw err1;
   	var serverData = {
-		data1: [],
-		data2: [],
-		data3: [],
-		type: command.type,
+			data1: [],
+			data2: [],
+			data3: [],
+			type: command.type,
     	chart: command.chart
-	}
+		}
   	var callbacksLeft = 0;
     for(var i = 0; i < rows1.length; i++){
       var string = rows1[i].date + "T" + rows1[i].time;
       serverData.data1.push({"x": string, "y":rows1[i].value});
     }
-  var shouldCommitIn3 = false;
-  	if(command.type == 'wind_direction'){
-    	shouldCommitIn3 = true;
-    	var queryCommand2 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + 'wind' + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
-    	var query2 = connection.query(queryCommand2, function(err2, rows2, result2){
-        	if(err2) throw err2;
-        	for(var i = 0; i < rows2.length; i++){
-            	var string = rows2[i].date + "T" + rows2[i].time;
-            	serverData.data2.push({"x": string, "y": rows2[i].value});
-            }
-        	var queryCommand3 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + 'wind_max' + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
-        	var query3 = connection.query(queryCommand3, function(err3, rows3, result3){
-            	if(err3) throw err3;
-            	for(var i = 0; i < rows3.length; i++){
-            		var string = rows3[i].date + "T" + rows3[i].time;
-            		serverData.data3.push({"x": string, "y": rows3[i].value});
-            	}
-            	socket.emit('serverData', serverData);
-            });
-        });
-    }
-  	if(shouldCommitIn3 == false){
-    	socket.emit('serverData', serverData);
-    }
+		var shouldCommitIn3 = false;
+			if(command.type == 'wind_direction'){
+				shouldCommitIn3 = true;
+				var queryCommand2 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + 'wind' + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
+				var query2 = connection.query(queryCommand2, function(err2, rows2, result2){
+						if(err2) throw err2;
+						for(var i = 0; i < rows2.length; i++){
+								var string = rows2[i].date + "T" + rows2[i].time;
+								serverData.data2.push({"x": string, "y": rows2[i].value});
+							}
+						var queryCommand3 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + 'wind_max' + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
+						var query3 = connection.query(queryCommand3, function(err3, rows3, result3){
+								if(err3) throw err3;
+								for(var i = 0; i < rows3.length; i++){
+									var string = rows3[i].date + "T" + rows3[i].time;
+									serverData.data3.push({"x": string, "y": rows3[i].value});
+								}
+								socket.emit('serverData', serverData);
+							});
+					});
+			}
+			if(shouldCommitIn3 == false){
+				socket.emit('serverData', serverData);
+			}
   });
 }
 

@@ -2,17 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch",
-            "type": "go",
+            "type": "gdb",
             "request": "launch",
-            "mode": "debug",
-            "remotePath": "",
-            "port": 2345,
-            "host": "127.0.0.1",
-            "program": "${workspaceRoot}",
-            "env": {},
-            "args": [],
-            "showLog": true
+            "cwd": "${workspaceRoot}",
+            "name": "PlatformIO Debugger",
+            "target": "c:/Users/vikto/go/src/github.com/turbotage/WeatherStation/.pioenvs/uno/firmware.elf",
+            "gdbpath": "C:/Users/vikto/.platformio/penv/Scripts/piodebuggdb",
+            "autorun": [ "source .pioinit" ]
         }
     ]
 }

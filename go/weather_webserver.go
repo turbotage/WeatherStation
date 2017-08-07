@@ -39,7 +39,7 @@ func (w *WebServer) init(c *CmdArgs) {
 			log.Fatal("Error: Couldn't create https certs.")
 		}
 	}
-	w.fs = http.FileServer(http.Dir("static_website"))
+	w.fs = http.FileServer(http.Dir(*c.httpsFolderName))
 }
 
 type ClientData struct {
@@ -49,8 +49,26 @@ type ClientData struct {
 	chart       int
 }
 
-func (w *WebServer) handleRequest(so *socketio.Socket, c *ClientData) {
+type Vec2_sf struct {
+	x string  'json:"x"'
+	y float32 'json:"y"'
+}
 
+type Vec2_ss struct {
+	x string 'json:"x"'
+	y string 'json:"y"'
+}
+
+type ServerData struct {
+	data1 []Vec2_sf 	'json:"data1"'
+	data2 []Vec2_sf 	'json:"data2"'
+	data3 []Vec2_ss		'json:"data3"'
+	weatherType string  'json:"weatherType"'
+	chart int 			'json:"chart"'
+}
+
+func (w *WebServer) handleRequest(so *socketio.Socket, c *ClientData) {
+	
 }
 
 func (w *WebServer) run(c *CmdArgs) {

@@ -2,7 +2,7 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>
-#include "Adafruit_BME280.h"
+#include "../lib/Adafruit_BME280/Adafruit_BME280.h"
 
 #define GUST_TIME 5000
 
@@ -34,7 +34,7 @@ volatile unsigned long timeAtWindUpdate = 0;
 //wind gust
 float highestGust = 0;
 bool gustHasUpdated = false;
-unsigned long timeAtLastGustUpdate = 0.0000001;
+unsigned long timeAtLastGustUpdate = 0;
 volatile int gustRevs = 0;
 
 //wind dir
@@ -61,7 +61,7 @@ void countAnemometer() {
     if(nextInteruptTime == 0 || nextInteruptTime < millis()){
         numRevsAnemometer++;
         gustRevs++;
-        nextInteruptTime = millis() + 20; //this means that the windstation won't give accurate meassurments if wind speeds exceed 30 m/s;
+        nextInteruptTime = millis() + 50; //this means that the windstation won't give accurate meassurments if wind speeds exceed 30 m/s;
     }
 }
 //=======================================================
@@ -73,23 +73,23 @@ void countRainGauge() {
 }
 
 void addMessage(const char* m){
-	message += m + *("\n");
+	message += m;
 }
 
 //=======================================================
 // Calculate the wind speed, and display it (or log it, whatever).
 // 1 rev/sec = 1.492 mph = 2.40114125 kph
 //=======================================================
-double calcWindSpeed() {
-	double x = 0;
+float calcWindSpeed() {
+	float x = 0;
 	x = 2.40114125*numRevsAnemometer/3.6;
-	double timer = 0.00000001;
+	float timer = 0.00000001;
 	timer += (millis() - timeAtWindUpdate)/1000; //seconds since last update
 	x /= timer;
 	if(debug){
-		Serial.print("numDropsRainGauge: ");
+		Serial.print("numRevsAnemometer: ");
 		Serial.println(numDropsRainGauge);
-		Serial.print("time since last calcRainFall() : ");
+		Serial.print("time since last calcWindSpeed() : ");
 		Serial.println(timer);
 	}
 	numRevsAnemometer = 0;        // Reset counter
@@ -103,12 +103,12 @@ double calcWindSpeed() {
 // Calculate the rain , and display it (or log it, whatever).
 // 1 bucket = 0.2794 mm
 //=======================================================
-double calcRainFall() {
-	double x = 0;
+float calcRainFall() {
+	float x = 0;
 	x = 0.2794*numDropsRainGauge; //get rainvolume since last measurement
-	double timer = 0.00000001;
+	float timer = 0.00000001;
 	timer += (millis() - timeAtRainUpdate)/1000; //get seconds since last raincallculation
-	double rain = (3600 * x)/timer; //take volume per time and convert to right format (mm/h)
+	float rain = (3600 * x)/timer; //take volume per time and convert to right format (mm/h)
 	if(debug){
 		Serial.print("numDropsRainGauge: ");
 		Serial.println(numDropsRainGauge);
@@ -133,15 +133,15 @@ void resetGust() {
 	timeAtLastGustUpdate = millis();
 }
 
-double calcWindGust(){
+float calcWindGust(){
 	unsigned long timer = millis() - timeAtLastGustUpdate;
 	int timu = timer % 6000;
 	if ((timu >= 0) && (timu <= 100)) {
 		if (!gustHasUpdated) {
 			gustHasUpdated = true;
-			double currentGust = 0;
+			float currentGust = 0;
 			currentGust = 2.40114125*gustRevs / 3.6;
-			double deltaT = (timer / 1000) + 0.00000001;
+			float deltaT = (timer / 1000) + 0.0000001;
 			currentGust /= deltaT;
 			gustRevs = 0;
 			timeAtLastGustUpdate = timer;
@@ -195,6 +195,8 @@ String calcWindDirOnce() {
 			return dirStrings[i];
 		}
 	}
+	String str1 = "CWD ERROR, reading, " + String(reading);
+	addMessage(str1.c_str());
 	return "ERROR";
 }
 
@@ -226,7 +228,7 @@ void updateWindDirArray() {
 }
 
 void updateHumidityTempPressure() {
-	unsigned long timu = millis() % 20000;
+	unsigned long timu = millis() % 10000;
 	if ((timu >= 0) && (timu <= 100)) {
 		if (!humidityTemperaturePressureHasUpdated) {
 			humidityTemperaturePressureHasUpdated = true;
@@ -256,8 +258,10 @@ void setup(){
     pinMode(13, OUTPUT);
     digitalWrite(PIN_ANEMOMETER, HIGH);
     digitalWrite(PIN_RAINGAUGE, HIGH);
-    attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
-    attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
+    //attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
+    //attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
+	attachInterrupt(0, countAnemometer, FALLING);
+    attachInterrupt(1, countRainGauge, FALLING);
     timeAtRainUpdate = millis();
     timeAtWindUpdate = millis();
     if(!bme.begin()) {
@@ -304,7 +308,7 @@ void loop(){
 			case '3':
 				{
 					if (debug){
-						Serial.println(bme.readTemperature() / 100.0f);
+						Serial.println(bme.readTemperature());
 					}
 					else if (tempCounter == 0) {
 						Serial.println(bme.readTemperature());
@@ -362,6 +366,12 @@ void loop(){
 				softwareReset();
 				break;
 			case 'D':
+				if(debug){
+					Serial.println("turned off debug mode");
+				}
+				else {
+					Serial.println("turned on debug mode");
+				}
 				debug = !debug;
 				break;
 			default:
