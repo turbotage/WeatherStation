@@ -25,11 +25,11 @@ volatile long nextInteruptTime = 0;
 
 //rain
 volatile int numDropsRainGauge = 0;
-volatile unsigned long timeAtRainUpdate = 0;
+unsigned long timeAtRainUpdate = 0;
 //wind
 float currentWind = 0;
 volatile int numRevsAnemometer = 0;
-volatile unsigned long timeAtWindUpdate = 0;
+unsigned long timeAtWindUpdate = 0;
 
 //wind gust
 float highestGust = 0;
@@ -82,7 +82,8 @@ void addMessage(const char* m){
 //=======================================================
 float calcWindSpeed() {
 	float x = 0;
-	x = 2.40114125*numRevsAnemometer/3.6;
+	unsigned int num = numRevsAnemometer;
+	x = 2.40114125*num/3.6;
 	float timer = 0.00000001;
 	timer += (millis() - timeAtWindUpdate)/1000; //seconds since last update
 	x /= timer;
@@ -105,13 +106,14 @@ float calcWindSpeed() {
 //=======================================================
 float calcRainFall() {
 	float x = 0;
-	x = 0.2794*numDropsRainGauge; //get rainvolume since last measurement
+	unsigned int num = numDropsRainGauge; //get rainvolume since last measurement
+	x = 0.2794*num;
 	float timer = 0.00000001;
 	timer += (millis() - timeAtRainUpdate)/1000; //get seconds since last raincallculation
 	float rain = (3600 * x)/timer; //take volume per time and convert to right format (mm/h)
 	if(debug){
 		Serial.print("numDropsRainGauge: ");
-		Serial.println(numDropsRainGauge);
+		Serial.println(num);
 		Serial.print("time since last calcRainFall() : ");
 		Serial.println(timer);
 	}
@@ -135,12 +137,13 @@ void resetGust() {
 
 float calcWindGust(){
 	unsigned long timer = millis() - timeAtLastGustUpdate;
-	int timu = timer % 6000;
-	if ((timu >= 0) && (timu <= 100)) {
+	int timu = timer % 2000;
+	if ((timu >= 0) && (timu <= 40)) {
 		if (!gustHasUpdated) {
 			gustHasUpdated = true;
-			float currentGust = 0;
-			currentGust = 2.40114125*gustRevs / 3.6;
+			float currentGust = 0.0f;
+			int num = gustRevs;
+			currentGust = 2.40114125*num / 3.6;
 			float deltaT = (timer / 1000) + 0.0000001;
 			currentGust /= deltaT;
 			gustRevs = 0;
@@ -195,7 +198,7 @@ String calcWindDirOnce() {
 			return dirStrings[i];
 		}
 	}
-	String str1 = "CWD ERROR, reading, " + String(reading);
+	String str1 = "CALCINDIR ERROR, reading, " + String(reading) + "; ";
 	addMessage(str1.c_str());
 	return "ERROR";
 }
@@ -215,8 +218,8 @@ String calcWindDir() {
 }
 
 void updateWindDirArray() {
-	unsigned long timu = millis() % 5000;
-	if ((timu >= 0) && (timu <= 100)) {
+	unsigned long timu = millis() % 3000;
+	if ((timu >= 0) && (timu <= 50)) {
 		if (!windDirHasUpdated) {
 			windDirHasUpdated = true;
 			calcWindDir();
@@ -258,10 +261,10 @@ void setup(){
     pinMode(13, OUTPUT);
     digitalWrite(PIN_ANEMOMETER, HIGH);
     digitalWrite(PIN_RAINGAUGE, HIGH);
-    //attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
-    //attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
-	attachInterrupt(0, countAnemometer, FALLING);
-    attachInterrupt(1, countRainGauge, FALLING);
+    attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
+    attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
+	//attachInterrupt(0, countAnemometer, FALLING);
+    //attachInterrupt(1, countRainGauge, FALLING);
     timeAtRainUpdate = millis();
     timeAtWindUpdate = millis();
     if(!bme.begin()) {
@@ -342,7 +345,7 @@ void loop(){
 			case '6':
 				if (highestGust < currentWind) {
 					highestGust = currentWind + currentWind*0.22; //if an error has occured the highest gust will probably be the upper standard deviation
-					addMessage("CALCULATED HIGHEST GUST WITH STANDARD DEVIATION : ");
+					addMessage("WARNING 6; ");
 				}
 				Serial.println(highestGust);
 				resetGust();
