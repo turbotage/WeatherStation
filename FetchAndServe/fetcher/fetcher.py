@@ -19,6 +19,7 @@ if len(arduino_ports) > 1:
 
 port = serial.Serial(arduino_ports[0], baudrate=9600)
 
+# host, user, passwd, dbname
 db = MySQLdb.connect("localhost","secret","secret","secret" )
 cursor = db.cursor()
 

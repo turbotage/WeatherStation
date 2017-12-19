@@ -19,6 +19,7 @@
 
 String lastError = "NO ERROR";
 String message = "";
+String lastWindDir;
 bool debug = false;
 
 volatile long nextInteruptTime = 0;
@@ -270,6 +271,8 @@ void setup(){
     if(!bme.begin()) {
 		lastError = "NO BME280 SENSOR FOUND";
     }
+	delay(10000);
+	currentWind = calcWindSpeed();
 }
 
 void loop(){
@@ -333,7 +336,11 @@ void loop(){
 						String dir = getWindDir();
 						if (dir == "NO_DIR") {
 							dir = calcWindDirOnce();
+							if(dir == "ERROR"){
+								dir = lastWindDir;
+							}
 						}
+						lastWindDir = dir;
 						Serial.println(dir);
 					}
 				}

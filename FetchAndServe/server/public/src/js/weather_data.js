@@ -1,4 +1,4 @@
-var socket = io.connect('https://94.198.66.59:55555');
+var socket = io.connect('https://PUT_IP_HERE:55555');
 
 var tension = 0;
 
