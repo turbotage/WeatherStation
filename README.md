@@ -1,6 +1,6 @@
 # WeatherStation
 
-## I havn't checked any spelling or grammer FYI
+## I haven't checked any spelling or grammer FYI
 
 ## Layout
 
@@ -14,7 +14,9 @@
 ![Alt text](layout/PCB.png?raw=true "Breadboard view")
 
 ### OBSERVE
-all passwords and keys stored in plaintext in the source will not be the same for the actual WeatherStation, and if you wish to use this project for your own weather-station, i suggest you change keys and passwords aswell as mentioned in the section installing the software, this project is mainly done for a linux server, but to make it work for windows or mac shouldn't be to much work.
+All passwords and keys stored in plaintext in the source will not be the same for the actual WeatherStation, and if you wish to use this project for your own weather-station. I suggest you change keys and passwords aswell as mentioned in the section installing the software. 
+
+This project is mainly done for a linux server, but to make it work for windows or mac shouldn't be to much work.
 
 ### INSTALLING THE SOFTWARE
 
@@ -26,13 +28,13 @@ all passwords and keys stored in plaintext in the source will not be the same fo
 
 4: Repeat step 3 but in FetchAndServe/fetcher/fetcher.py, the order of things is the same as in step 3
 
-5: run the FetchAndServe/fetcher/gen_key.sh script and follow the steps to create an encryption key for the websites tls
+5: Run the FetchAndServe/fetcher/gen_key.sh script and follow the steps to create an encryption key for the websites tls
 
-6: run the FetchAndServe/fetcher/gen_cert.sh script and follow the steps to create an
+6: Run the FetchAndServe/fetcher/gen_cert.sh script and follow the steps to create an
 self signed certificate for the websites tls, get a verified cert if you don't wan't webbrowsers to say your website is unsafe.
 
-run start_fetcher.sh in a new screen session.
+7: Run start_fetcher.sh in a new screen session.
 
-run start_server.sh in a new screen session
+8: Run start_server.sh in a new screen session
 
-DONE DEAL
+## DONE DEAL
