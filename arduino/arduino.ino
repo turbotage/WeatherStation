@@ -36,7 +36,8 @@ unsigned long timeAtWindUpdate = 0;
 float highestGust = 0;
 bool gustHasUpdated = false;
 unsigned long timeAtLastGustUpdate = 0;
-volatile int gustRevs = 0;
+volatile int gustRevs[4];
+int gustPeriodCounter = 0;
 
 //wind dir
 bool windDirHasUpdated = false;
@@ -60,9 +61,12 @@ Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 //=======================================================
 void countAnemometer() {
     if(nextInteruptTime == 0 || nextInteruptTime < millis()){
-        numRevsAnemometer++;
-        gustRevs++;
-        nextInteruptTime = millis() + 50; //this means that the windstation won't give accurate meassurments if wind speeds exceed 30 m/s;
+        ++numRevsAnemometer;
+        ++gustRevs[0];
+        ++gustRevs[1];
+        ++gustRevs[2];
+        ++gustRevs[3];
+        nextInteruptTime = millis() + 20; //this means that the windstation won't give accurate meassurments if wind speeds exceed 50 m/s;
     }
 }
 //=======================================================
@@ -129,37 +133,36 @@ float calcRainFall() {
 //===============================================================
 //Calculate the max wind speed/gust
 //===============================================================
-
-void resetGust() {
-	highestGust = 0;
-	gustRevs = 0;
-	timeAtLastGustUpdate = millis();
-}
-
-float calcWindGust(){
-	unsigned long timer = millis() - timeAtLastGustUpdate;
-	int timu = timer % 2000;
-	if ((timu >= 0) && (timu <= 40)) {
-		if (!gustHasUpdated) {
-			gustHasUpdated = true;
-			float currentGust = 0.0f;
-			int num = gustRevs;
-			currentGust = 2.40114125*num / 3.6;
-			float deltaT = (timer / 1000) + 0.0000001;
-			currentGust /= deltaT;
-			gustRevs = 0;
-			timeAtLastGustUpdate = timer;
-			if (currentGust > 100 || currentGust < 0) {
-				currentGust = -1;
-			}
-			if (currentGust > highestGust) {
-				highestGust = currentGust;
-			}
-		}
-	}
-	else {
-		gustHasUpdated = false;
-	}
+void calcWindGust(){
+  unsigned long timer = millis() - timeAtLastGustUpdate;
+  int timu = timer % 500;
+  if ((timu >= 0) && (timu <= 40)) {
+    if(!gustHasUpdated){
+      gustHasUpdated = true;
+      float currentGust = 0.0f;
+      int num = gustRevs[gustNumCounter];
+      currentGust = 2.40114124f * num / 3.6f;
+      float deltaT = (timer / 1000) + 0.000001f;
+      currentGust /= deltaT;
+      if(currentGust > 100 || currentGust < 0){
+        currentGust = -1;
+      }
+      if(currentGust > highestGust) {
+        highestGust = currentGust;
+      }
+      
+      gustRevs[gustNumCounter] = 0;
+      ++gustNumCounter;
+      if(gustNumCounter == 4){
+      	gustNumCounter = 0;
+      }
+      timeAtLastGustUpdate = timer;
+    }
+  }
+  else {
+    gustHasUpdated = false;
+  }
+  
 }
 
 //=======================================================
@@ -171,6 +174,7 @@ bool returnRange(int reading, int val) {
 	}
 	return false;
 }
+
 //all wind dir things
 int wind_dir_array[16];
 String getWindDir() {
@@ -216,6 +220,12 @@ String calcWindDir() {
 		}
 	}
 	return "ERROR";
+}
+
+void resetWindDirArray(){
+  for(int i = 0; i < 16; ++i){
+    wind_dir_array[i] = 0;
+  }
 }
 
 void updateWindDirArray() {
@@ -264,15 +274,15 @@ void setup(){
     digitalWrite(PIN_RAINGAUGE, HIGH);
     attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
     attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
-	//attachInterrupt(0, countAnemometer, FALLING);
+	  //attachInterrupt(0, countAnemometer, FALLING);
     //attachInterrupt(1, countRainGauge, FALLING);
     timeAtRainUpdate = millis();
     timeAtWindUpdate = millis();
     if(!bme.begin()) {
-		lastError = "NO BME280 SENSOR FOUND";
+		  lastError = "NO BME280 SENSOR FOUND";
     }
-	delay(10000);
-	currentWind = calcWindSpeed();
+	  delay(10000);
+	  currentWind = calcWindSpeed();
 }
 
 void loop(){
@@ -341,6 +351,7 @@ void loop(){
 							}
 						}
 						lastWindDir = dir;
+           					resetWindDirArray();
 						Serial.println(dir);
 					}
 				}
@@ -395,4 +406,3 @@ void loop(){
 		softwareReset(); //resets the arduino after aprox 49 days and 17 hours
 	}
 }
-
