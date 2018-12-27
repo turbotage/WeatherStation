@@ -1,4 +1,5 @@
-#include <avr\wdt.h>
+//#include <avr\wdt.h>
+#include "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/avr/wdt.h"
 #include <Wire.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>
@@ -7,14 +8,22 @@
 #include "windvane.h"
 #include "bme280.h"
 
-volatile WindVane vane;
-volatile Anemometer anem;
-volatile RainGauge raingauge;
+
+WindVane vane;
+Anemometer anemometer;
+RainGauge raingauge;
+
 
 BME280 bme;
 
+
 volatile unsigned long nextAnemometerTime = 0;
 volatile unsigned long nextRainGaugeTime = 0;
+
+volatile unsigned int windSpeedRevs = 0;
+volatile unsigned int gustRevs[4] = {0,0,0,0};
+
+volatile unsigned int numRainDrops = 0;
 
 //=======================================================
 // Interrupt handler for anemometer. Called each time the reed
@@ -22,8 +31,11 @@ volatile unsigned long nextRainGaugeTime = 0;
 //=======================================================
 void countAnemometer() {
     if(nextAnemometerTime == 0 || nextAnemometerTime < millis()){
-        anemometer.incrementWindSpeedRevs();
-		anemometer.incrementGustRevs();
+        ++windSpeedRevs;
+		    ++gustRevs[0];
+        ++gustRevs[1];
+        ++gustRevs[2];
+        ++gustRevs[3];
         nextAnemometerTime = millis() + 4; //this means that the windstation won't give accurate meassurments if wind speeds exceed 50 m/s;
     }
 }
@@ -33,7 +45,7 @@ void countAnemometer() {
 //=======================================================
 void countRainGauge() {
 	if (nextRainGaugeTime == 0 || nextRainGaugeTime) {
-		raingauge.incrementRainGaugeRevs();
+    ++numRainDrops;
 		nextRainGaugeTime = millis() + 20;
 	}
 }
@@ -52,6 +64,7 @@ void onLoop() {
 	}
 }
 
+
 void handleComms() {
 	if(Serial.available() > 0){
 		int c = Serial.read();
@@ -63,7 +76,7 @@ void handleComms() {
 				Serial.println(bme.getPressure());
 				break;
 			case '3':
-				Serial.println(bme.getTemperature())
+				Serial.println(bme.getTemperature());
 				break;
 			case '4':
 				Serial.println(vane.getWindDirection());
@@ -93,7 +106,7 @@ void handleComms() {
 			default:
 				Serial.println("NCC");
 		}
-    }
+  }
 }
 
 //setup
@@ -101,17 +114,21 @@ void setup(){
 	Serial.begin(9600);
 	pinMode(PIN_ANEMOMETER, INPUT);
 	pinMode(PIN_RAINGAUGE, INPUT);
-	pinMode(13, OUTPUT);
+
 	digitalWrite(PIN_ANEMOMETER, HIGH);
 	digitalWrite(PIN_RAINGAUGE, HIGH);
+  
 	attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
 	attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
 	
 	bme.setup();
+  anemometer.setup(&windSpeedRevs, gustRevs);
+  raingauge.setup(&numRainDrops);
 
+  delay(1000);
 }
 
 void loop(){
-    handleComms();
+  handleComms();
 	onLoop();
 }

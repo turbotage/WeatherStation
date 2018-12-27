@@ -1,5 +1,7 @@
+#include <Adafruit_BME280.h>
 
-#include "../lib/Adafruit_BME280/Adafruit_BME280.h"
+
+//#include "Adafruit_BME280/Adafruit_BME280.h"
 
 #define BME_UPDATE_TIME 10000
 
@@ -14,7 +16,7 @@
 
 class BME280 {
 private:
-    Adafruit_BME280 bme;
+    Adafruit_BME280 m_Bme;
 
     bool m_HasUpdated = false;
     
@@ -30,13 +32,13 @@ private:
 public:
 
     BME280() 
-    : bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK)
+    : m_Bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK)
     {
 
     }
 
     bool setup() {
-        if(!bme.begin()) {
+        if(!m_Bme.begin()) {
             return false;
         }
         return true;
@@ -47,11 +49,11 @@ public:
         if ((timu >= 0) && (timu <= 40)) {
             if (!m_HasUpdated) {
                 m_HasUpdated = true;
-                m_Humidity += bme.readHumidity();
+                m_Humidity += m_Bme.readHumidity();
                 ++m_HumidityCounter;
-                m_Pressure += bme.readPressure();
+                m_Pressure += (m_Bme.readPressure()/1000.0f);
                 ++m_PressureCounter;
-                m_Temperature += bme.readTemperature();
+                m_Temperature += m_Bme.readTemperature();
                 ++m_TemperatureCounter;
             }
         }
@@ -68,7 +70,7 @@ public:
             return humid;
         }
         else {
-            return bme.readHumidity();
+            return m_Bme.readHumidity();
         }
     }
 
@@ -80,7 +82,7 @@ public:
             return press;
         }
         else {
-            return bme.readPressure();
+            return (m_Bme.readPressure() / 1000.0f);
         }
     }
 
@@ -92,8 +94,8 @@ public:
             return temp;
         }
         else {
-            return bme.readTemperature();
+            return m_Bme.readTemperature();
         }
     }
 
-}
+};
