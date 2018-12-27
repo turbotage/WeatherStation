@@ -1,29 +1,28 @@
+import PyMySQL
 import serial
-import serial.tools.list_ports
 import time
 from datetime import date, datetime, timedelta
-import MySQLdb
 import sys
+import argparse
 
+parser = argparse.ArgumentParser(description='Fetcher for WeatherStation')
 
-arduino_ports = [
-	p.device
-	for p in serial.tools.list_ports.comports()
-	if 'Arduino' in p.description
-]
+parser.add_argument("-p", "--port", required=True, help="name of the port to fetch from")
+parser.add_argument("-b", "--baud", required=True, help="baudrate")
+parser.add_argument("-i", "--db_address", required=True, help="ip address of the database")
+parser.add_argument("-u", "--user", required=True, help="username to the database")
+parser.add_argument("-k", "--pass", required=True, help="password to the database")
+parser.add_argument("-d", "--db_name", required=True, help="name of the database")
 
-if not arduino_ports:
-	raise IOError("No Arduino found")
-if len(arduino_ports) > 1:
-	warnings.warn('Multiple Arduinos found - using first')
+args = vars(parser.parse_args())
 
-port = serial.Serial(arduino_ports[0], baudrate=9600)
+port = None #serial.Serial(arduino_ports[0], baudrate=9600)
 
 # host, user, passwd, dbname
-db = MySQLdb.connect("localhost","secret","secret","secret" )
-cursor = db.cursor()
+db = None #MySQLdb.connect("localhost","secret","secret","secret" )
+cursor = None# db.cursor()
 
-typeStrings = ['humidity', 'pressure', 'temperature', 'rainfall', 'wind', 'wind_max', 'wind_direction']
+typeStrings = ['humidity', 'pressure', 'temperature', 'rainfall', 'wind', 'gust', 'wind_direction']
 
 def readlineCR(port):
 	rv = ""
@@ -39,9 +38,10 @@ def insertInDatabase(i, reading):
 	sql = "INSERT INTO " + typeStrings[i] + "(date, value, time)" + " VALUES(\'" + time.strftime("%Y-%m-%d") + "\'," + str(reading) + ",\'" + time.strftime("%H:%M:%S") + "\')"
 	if i == 3:
 		sql = "INSERT INTO " + typeStrings[i] + "(date, value, time)" + " VALUES(\'" + time.strftime("%Y-%m-%d") + "\',\'" + str(reading) + "\',\'" + time.strftime("%H:%M:%S") + "\')"
-	cursor.execute(sql)
-	db.commit()
-	print(cursor._last_executed)
+	#cursor.execute(sql)
+	#db.commit()
+	#print(cursor._last_executed)
+	print(sql)
 
 def allButRain():
 	for i in range (6):
@@ -75,12 +75,22 @@ def start():
 		rain()
 		print("iteration")
 
-try:
-	start()
-except:
-	#print(cursor._last_executed)
-	db.rollback()
-	port.close()
-	db.close()
-	print(time.strftime("%Y-%m-%d") + " : " + time.strftime("%H:%M:%S"))
-	print "Unexpected error:", sys.exc_info()[0]	
+def init(argsIn):
+	port = serial.Serial(argsIn["port"], argsIn["baud"])
+	db = PyMySQL.connect(argsIn["db_address"], argsIn["user"], argsIn["pass"], argsIn["db_name"])
+	cursor = db.cursor()
+
+#start of script
+#---------------------------------------------
+
+while True:
+	try:
+		init(args)
+		start()
+	except:
+		#print(cursor._last_executed)
+		db.rollback()
+		port.close()
+		db.close()
+		print(time.strftime("%Y-%m-%d") + " : " + time.strftime("%H:%M:%S"))
+		print("Unexpected error:", sys.exc_info()[0])
