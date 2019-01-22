@@ -22,7 +22,7 @@ port = None #serial.Serial(arduino_ports[0], baudrate=9600)
 db = None #MySQLdb.connect("localhost","secret","secret","secret" )
 cursor = None# db.cursor()
 
-typeStrings = ['humidity', 'pressure', 'temperature', 'rainfall', 'wind', 'gust', 'wind_direction']
+last_error = "Manual Start"
 
 def readlineCR(port):
 	rv = ""
@@ -34,46 +34,93 @@ def readlineCR(port):
 		else:
 			rv += ch
 
-def insertInDatabase(i, reading):
-	sql = "INSERT INTO " + typeStrings[i] + "(date, value, time)" + " VALUES(\'" + time.strftime("%Y-%m-%d") + "\'," + str(reading) + ",\'" + time.strftime("%H:%M:%S") + "\')"
-	if i == 3:
-		sql = "INSERT INTO " + typeStrings[i] + "(date, value, time)" + " VALUES(\'" + time.strftime("%Y-%m-%d") + "\',\'" + str(reading) + "\',\'" + time.strftime("%H:%M:%S") + "\')"
-	#cursor.execute(sql)
-	#db.commit()
-	#print(cursor._last_executed)
-	print(sql)
 
-def allButRain():
-	for i in range (6):
-		print(str(i))
-		port.write(str(i + 1))
-		rcv = readlineCR(port)
-		print(rcv)
-		time.sleep(0.01)
-		insertInDatabase(i, rcv)
+def updateHumidity()
+	port.write("1")
+	humidity = readlineCR(port)
+	sql = "INSERT INTO humidty (datetime,humidity) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," + str(humidity) + ")"
+	return sql
 
-def rain():
-	print(str(6))
-	port.write(str(6))
-	rcv = readlineCR(port)
-	print(rcv)
-	insertInDatabase(6, rcv)
-	time.sleep(0.01)
+def updatePressure()
+	port.write("2")
+	pressure = readlineCR(port)
+	sql = "INSERT INTO pressure (datetime,pressure) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," + str(pressure) + ")"
+	return sql
+
+def updateTemperature()
+	port.write("3")
+	temperature = readlineCR(port)
+	sql = "INSERT INTO temperature (datetime,temperature) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," + str(temperature) + ")"
+	return sql
+
+def updateWind()
+	port.write("4")
+	direction = readlineCR(port)
+	port.write("5")
+	wind = readlineCR(port)
+	sql = "INSERT INTO wind (datetime,wind,direction) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," + str(wind) + "," + str(direction) + + ")"
+	return sql
+
+def updateGust()
+	port.write("1")
+	gust = readlineCR(port)
+	sql = "INSERT INTO gust (datetime,gust) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," + str(gust) + ")"
+	return sql
+
+def updateRainfall()
+	port.write("1")
+	rainfall = readlineCR(port)
+	sql = "INSERT INTO rainfall (datetime,rainfall) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," + str(rainfall) + ")"
+	return sql
+
+
+def updateFetchStart()
+	sql = "INESRT INTO fetchstart (datetime,lasterror) VALUES(\'" + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "\'," +  last_error + ")"
+	return sql
 
 def start():
-	print('started')
+	#send start message with last error
+	print("started: " + time.strftime("%Y-%m-%d") + ":" + time.strftime("%H:%M:%S") + "  LastError:" + last_error)
+
+	#update first fetch
+	sql = updateFetchStart()
+	cursor.execute(sql)
+	db.commit()
+
+	# wait some initial time to let the arduino
 	time.sleep(60)
-	port.write('1')
-	rcv = port.readlineCR()
+	
+	# rainfall
+	sql = updateRainfall()
+	cursor.execute(sql)
+	db.commit()
 	while True:
-		allButRain()
-		time.sleep(600)
-		allButRain()
-		time.sleep(600)
-		allButRain()
-		time.sleep(600)
-		rain()
-		print("iteration")
+		sql = 
+		for i in range(3)
+			# humidity
+			sql = updateHumidity()
+			cursor.execute(sql)
+			db.commit()
+			# pressure
+			sql = updatePressure()
+			cursor.execute(sql)
+			db.commit()
+			# temperature
+			sql = updateTemperature()
+			cursor.execute(sql)
+			db.commit()
+			# wind
+			sql = updateWind()
+			cursor.execute(sql)
+			db.commit()
+			# gust
+			sql = updateGust()
+			cursor.execute(sql)
+			db.commit()
+
+			#wait
+			time.sleep(600)
+
 
 def init(argsIn):
 	port = serial.Serial(argsIn["port"], argsIn["baud"])

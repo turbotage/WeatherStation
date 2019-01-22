@@ -1,4 +1,3 @@
-
 float temp = -5.7f;
 float humidity = 80.0f;
 float pressure = 1012.0f;
