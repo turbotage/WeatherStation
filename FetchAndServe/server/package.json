@@ -1,12 +1,18 @@
 {
-  "name": "server",
+  "name": "testnewweather",
   "version": "1.0.0",
-  "description": "the server that returns the mysql weather data",
+  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "turbotage",
-  "license": "ISC"
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "minimist": "^1.2.0",
+    "mysql": "^2.16.0",
+    "socket.io": "^2.2.0"
+  }
 }

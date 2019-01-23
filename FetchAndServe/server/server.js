@@ -1,84 +1,198 @@
-var dateFormat = require('dateformat'),
-fs = require('fs'),
-https = require('https'),
-express = require('express');
+//example call node .\server.js --db_host localhost --db_user turbotage --db_pass klassuger --db_name weather
 
-var app = express();
+
+//mysql init
+
+var argv = require('minimist')(process.argv.slice(2));
+console.dir(argv);
+
+if (!argv.hasOwnProperty("db_host")) {
+    if (argv.db_host == null) {
+        console.log("did not specify database host name");
+        process.exit();
+    }
+}
+
+if (!argv.hasOwnProperty("db_user")) {
+    if (argv.db_user == null) {
+        console.log("did not specify database user name");
+        process.exit();
+    }
+}
+
+if (!argv.hasOwnProperty("db_pass")) {
+    if (argv.db_pass == null) {
+        console.log("did not specify database password");
+        process.exit();
+    }
+}
+
+if (!argv.hasOwnProperty("db_name")) {
+    if (argv.db_name == null) {
+        console.log("did not specify database name");
+        process.exit();
+    }
+}
 
 var mysql = require('mysql');
 var connection = mysql.createConnection({
-	host: 'localhost',
-	user: 'secret',
-	password: 'secret',
-	database: 'secret'
+	host: argv.db_host,
+	user: argv.db_user,
+	password: argv.db_pass,
+    database: argv.db_name,
+    //port: 8889
 });
 
 connection.connect();
 
-function weatherQuery(command, socket){
-  var queryCommand1 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + command.type + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
-  var query1 = connection.query(queryCommand1, function(err1, rows1, result1){
-    if(err1) throw err1;
-  	var serverData = {
-			data1: [],
-			data2: [],
-			data3: [],
-			type: command.type,
-    	chart: command.chart
-		}
-  	var callbacksLeft = 0;
-    for(var i = 0; i < rows1.length; i++){
-      var string = rows1[i].date + "T" + rows1[i].time;
-      serverData.data1.push({"x": string, "y":rows1[i].value});
-    }
-		var shouldCommitIn3 = false;
-			if(command.type == 'wind_direction'){
-				shouldCommitIn3 = true;
-				var queryCommand2 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + 'wind' + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
-				var query2 = connection.query(queryCommand2, function(err2, rows2, result2){
-						if(err2) throw err2;
-						for(var i = 0; i < rows2.length; i++){
-								var string = rows2[i].date + "T" + rows2[i].time;
-								serverData.data2.push({"x": string, "y": rows2[i].value});
-							}
-						var queryCommand3 = 'SELECT DATE_FORMAT(date, \'%Y-%m-%d\') AS date,value,time FROM ' + 'wind_max' + ' WHERE date BETWEEN \'' + command.startDate + '\' AND \''  + command.endDate + '\' ORDER BY date,time ASC';
-						var query3 = connection.query(queryCommand3, function(err3, rows3, result3){
-								if(err3) throw err3;
-								for(var i = 0; i < rows3.length; i++){
-									var string = rows3[i].date + "T" + rows3[i].time;
-									serverData.data3.push({"x": string, "y": rows3[i].value});
-								}
-								socket.emit('serverData', serverData);
-							});
-					});
-			}
-			if(shouldCommitIn3 == false){
-				socket.emit('serverData', serverData);
-			}
-  });
-}
+//webserver init
 
-var port = 55555;
+var webserverPort = 3000;
+
+var http = require('http');
+var express = require('express');
+var app = express();
+
+var server = http.createServer(app);
+// Pass a http.Server instance to the listen method
+var io = require('socket.io').listen(server);
+
+// The server should start listening
+server.listen(webserverPort);
+
+// Expose the public folder as static resources
 app.use(express.static('public'));
 
-var app = https.createServer({
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
-}, app);
+console.log("listening on https://localhost:" + webserverPort);
 
-io = require('socket.io').listen(app);
-app.listen(port, "0.0.0.0");
-console.log("listening on https://localhost:" + port);
+var nQueryGoal = 0;
+var nQueries = 0;
 
-io.sockets.on('connection', function(socket){
-  console.log('New client: ' + socket.id);
-  socket.on('clientData', function(data){
-    var clientData = {
-    	type: data.type,
-    	startDate: data.startDate,
-    	endDate: data.endDate,
-    	chart: data.chart
+function handleRefresh(queryNumber, socket) {
+    //console.log(queryNumber);
+    if (nQueryGoal == 0) {
+        nQueryGoal = queryNumber;
+        nQueries = 1;
     }
-    var data = weatherQuery(clientData, socket);
-  });
+    if (nQueries == nQueryGoal) {
+        nQueryGoal = 0;
+        nQueries = 0;
+        socket.emit('refresh-chart')
+    }
+    nQueries++;
+}
+
+io.on('connection', function(socket){
+    //console.log('New client: ' + socket.id);
+    //socket.emit('server-refresh', {type: 1});
+
+    //TODO: change to
+    // SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM humidity 
+    // WHERE datetime BETWEEN '2019-01-01 03:05:01' AND '2019-01-01 03:30:20'
+
+    socket.on('humidity-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM humidity";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
+            }
+            socket.emit('humidity-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
+    socket.on('pressure-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM pressure";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
+            }
+            socket.emit('pressure-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
+    socket.on('temperature-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM temperature";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
+            }
+            socket.emit('temperature-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
+    socket.on('rainfall-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM rainfall";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
+            }
+            socket.emit('rainfall-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
+    socket.on('gust-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM gust";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
+            }
+            socket.emit('gust-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
+    socket.on('wind-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,wind,direction FROM wind";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].wind, rows[i].direction])
+            }
+            socket.emit('wind-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
+    socket.on('direction-query', function(data){
+        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,direction FROM wind";
+        connection.query(queryCmd, function(err, rows, result){
+            if (err) throw err;
+            var clientData = {
+                dataSeries: []
+            }
+            for(var i = 0; i < rows.length; i++){
+                clientData.dataSeries.push([rows[i].datetime, rows[i].direction])
+            }
+            socket.emit('direction-resp', clientData);
+            handleRefresh(data.queryNumber, socket);
+        })
+    });
+
 });
