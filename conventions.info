@@ -1,0 +1,12 @@
+WindBarb:
+wind_direction should be implemented as
+0 to 360 degrees, 0 is notherly wind, i.e pointing to the south
+Calibrate by starting in North then go clockwise every direction meassuring voltages,
+can be done with test_winddir.ino, voltage array should correspond to  m_Voltages in
+windvane.h
+
+WindSpeed:
+Meassured in m/s
+
+Gust:
+Given as highest avarage wind over a 2 sec period, new meassurement starts every 0.5 seconds

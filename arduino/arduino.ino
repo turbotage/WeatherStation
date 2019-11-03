@@ -32,7 +32,7 @@ volatile unsigned int numRainDrops = 0;
 void countAnemometer() {
     if(nextAnemometerTime == 0 || nextAnemometerTime < millis()){
         ++windSpeedRevs;
-		    ++gustRevs[0];
+		++gustRevs[0];
         ++gustRevs[1];
         ++gustRevs[2];
         ++gustRevs[3];

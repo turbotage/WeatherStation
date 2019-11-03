@@ -23,7 +23,13 @@
     <body>
         <div class="container-fluid">
             <div class="row">
-                <div id="graphdiv" style="width:100%; height:600px;"></div>
+                <div id="timeline-div" style="width:100%; height:600px;"></div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div id="windrose-div" style="width:100%; height:600px"></div>
             </div>
         </div>
 
@@ -33,7 +39,9 @@
         <!--  not own JS  -->
         <!-- chart library -->
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="http://code.highcharts.com/highcharts-more.js"></script>
         <script src="https://code.highcharts.com/modules/windbarb.js"></script>
+        <script src="http://code.highcharts.com/modules/data.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
         <!-- socket.io -->
@@ -42,7 +50,24 @@
         <!--  own JS  -->
         <script> $(function(){ $("#headerMenu").load("main_menu.html"); }); </script>
 
-        <script src="js/weather_station.js"></script>
+        <script> 
+            var socket = io.connect('http://192.168.1.238:3000');
+
+            var colors = {
+                humidity: '#0000ff',
+                pressure: '#ff00ff',
+                temperature: '#ff6600',
+                rainfall: '#0066cc',
+                wind: '#000000',
+                gust: '#808080',
+                direction: '#00ff00'
+            };
+
+        </script>
+
+        <script src="js/weather_data/timeline.js"></script>
+        <script src="js/weather_data/windrose.js"></script>
+
 
     </footer>
 

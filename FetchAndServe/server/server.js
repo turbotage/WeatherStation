@@ -65,134 +65,39 @@ app.use(express.static('public'));
 
 console.log("listening on https://localhost:" + webserverPort);
 
-var nQueryGoal = 0;
-var nQueries = 0;
-
-function handleRefresh(queryNumber, socket) {
-    //console.log(queryNumber);
-    if (nQueryGoal == 0) {
-        nQueryGoal = queryNumber;
-        nQueries = 1;
-    }
-    if (nQueries == nQueryGoal) {
-        nQueryGoal = 0;
-        nQueries = 0;
-        socket.emit('refresh-chart')
-    }
-    nQueries++;
-}
+var timeline = require("./timeline");
+var windrose = require("./windrose");
 
 io.on('connection', function(socket){
-    //console.log('New client: ' + socket.id);
     //socket.emit('server-refresh', {type: 1});
-
+    console.log(socket.id)
+    //console.log(socket.request.connection.remoteAddress);
+    //console.log(socket.handshake.address);   
+    //console.log(socket.request.connection.remoteAddress.split(":").pop());
     //TODO: change to
     // SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM humidity 
     // WHERE datetime BETWEEN '2019-01-01 03:05:01' AND '2019-01-01 03:30:20'
+    
+    //server-client communications
+    //server set socket specific properties
+    //timeline properties
 
-    socket.on('humidity-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM humidity";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
-            }
-            socket.emit('humidity-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
-    });
+    timeline.onSocketInit(socket);
+    windrose.onSocketInit(socket);
 
-    socket.on('pressure-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM pressure";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
-            }
-            socket.emit('pressure-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
-    });
+    //server-server communications
+    timeline.onTimelineQuerys(socket, connection);
+    windrose.onWindroseQuerys(socket, connection);
 
-    socket.on('temperature-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM temperature";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
-            }
-            socket.emit('temperature-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
-    });
 
-    socket.on('rainfall-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM rainfall";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
-            }
-            socket.emit('rainfall-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
-    });
+    socket.on('server-update-notice', function(data){
+        console.log('Fetcher Was Here');
+        var ipString = socket.request.connection.remoteAddress.split(":").pop();
+        console.log(ipString);
+        if ( (ipString == "192.168.1.168") || (ipString == "localhost") || (ipString == "127.0.0.1")) {
+            console.log('Real fetcher was here');
+        }   
 
-    socket.on('gust-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,value FROM gust";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].value])
-            }
-            socket.emit('gust-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
-    });
-
-    socket.on('wind-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,wind,direction FROM wind";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].wind, rows[i].direction])
-            }
-            socket.emit('wind-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
-    });
-
-    socket.on('direction-query', function(data){
-        var queryCmd = "SELECT UNIX_TIMESTAMP(datetime)*1000 AS datetime,direction FROM wind";
-        connection.query(queryCmd, function(err, rows, result){
-            if (err) throw err;
-            var clientData = {
-                dataSeries: []
-            }
-            for(var i = 0; i < rows.length; i++){
-                clientData.dataSeries.push([rows[i].datetime, rows[i].direction])
-            }
-            socket.emit('direction-resp', clientData);
-            handleRefresh(data.queryNumber, socket);
-        })
     });
 
 });
