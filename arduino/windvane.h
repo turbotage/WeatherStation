@@ -113,10 +113,10 @@ public:
         float degree;
 
         if (m_Y < 0.0) {
-          degree = -1*180*atan2(m_Y, m_X)/3.1415982;
+          degree = -1*180*atan2(m_Y, m_X)/3.141592;
         }
         else {
-          degree = 360 - 180*atan2(m_Y, m_X)/3.1415982;
+          degree = 360 - 180*atan2(m_Y, m_X)/3.141592;
         }
 
         /*

@@ -1,0 +1,4 @@
+npm install express
+npm install mysql
+npm install minimist
+npm install socket.io

@@ -1,0 +1,57 @@
+DATABASES AND TYPES:
+If not given, standard values are none,
+
+DatabaseName: weather
+    TableName: fetchstart
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: lasterror
+            Type: text (Col = utf8_swedish_ci)
+    TableName: gust
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: value
+            Type: float
+    TableName: humidity
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: value
+            Type: float
+    TableName: pressure
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: value
+            Type: float
+    TableName: rainfall
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: value
+            Type: float
+    TableName: temperature
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: value
+            Type: float
+    TableName: temperature
+        Column 1: 
+            Name: datetime
+            Type: datetime
+        Column 2:
+            Name: wind
+            Type: float
+        Column 3:
+            Name: direction
+            Type: float
+    
