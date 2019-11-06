@@ -10,11 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "date-and-time": "^0.10.0",
-    "distributions": "^2.1.0",
     "minimist": "^1.2.0",
     "mysql": "^2.17.1",
     "random": "^2.1.1",
-    "serialport": "^8.0.5",
-    "socket.io": "^2.3.0"
+    "serialport": "^8.0.5"
   }
 }

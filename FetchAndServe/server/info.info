@@ -1,4 +1,8 @@
-node .\server.js --db_host 192.168.1.238 --db_user turbotage --db_pass "klassuger" --db_name weather
+//test
+node .\server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather_test
+//real deal
+node .\server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather
+
 
 //this part only if not already created user
 CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';

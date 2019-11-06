@@ -1,6 +1,9 @@
 DATABASES AND TYPES:
 If not given, standard values are none,
 
+Username: weatherusr,
+Password: Weather!212
+
 DatabaseName: weather
     TableName: fetchstart
         Column 1: 
@@ -44,7 +47,7 @@ DatabaseName: weather
         Column 2:
             Name: value
             Type: float
-    TableName: temperature
+    TableName: wind
         Column 1: 
             Name: datetime
             Type: datetime

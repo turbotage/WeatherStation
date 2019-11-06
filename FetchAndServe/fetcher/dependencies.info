@@ -1,7 +1,5 @@
-npm install --save serialport
 npm install mysql
 npm install minimist
-npm install socket.io
-npm install distributions
 npm install random
 npm install date-and-time
+npm install serialport
