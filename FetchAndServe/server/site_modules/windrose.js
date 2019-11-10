@@ -2,20 +2,6 @@ var db = require('../setup_modules/db');
 
 // N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW
 
-function handleRefreshWindrose(queryNumber, socket) {
-    //console.log(queryNumber); 
-    if (socket.windrose.nQueryGoal == 0) {
-        socket.windrose.nQueryGoal = queryNumber;
-        socket.windrose.nQueries = 1;
-    }
-    if (socket.windrose.nQueries == socket.windrose.nQueryGoal) {
-        socket.windrose.nQueryGoal = 0;
-        socket.windrose.nQueries = 0;
-        socket.emit('refresh-chart-windrose');
-    }
-    socket.windrose.nQueries++;
-}
-
 function getDirectionName(degree) {
     var dirList = ["N","NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
     if ( (degree > 348.75) || ( (degree >= 0) && (degree < 12.25) ) ) {
@@ -40,17 +26,10 @@ function getDirectionNumber(degree) {
     }
 }
 
-function onSocketInit(socket) {
-    socket.windrose = {
-        nQueries: 0,
-        nQueryGoal: 0
-    }
-}
-
 function onWindroseQuerys(socket) {
 
     socket.on('wind-query-windrose', function(data){
-        var datetimeDependence = "";
+        var datetimeDependence = " AND datetime BETWEEN \'" + data.startDate + "\' AND \'" + data.endDate + "\'";
 
         var clientData = [];
 
@@ -130,7 +109,6 @@ function onWindroseQuerys(socket) {
 					clientData.reverse();
                     //finaly emit
                     socket.emit('wind-resp-windrose', clientData);
-                    handleRefreshWindrose(data.queryNumber, socket);
                 });
             }
         }
@@ -139,6 +117,5 @@ function onWindroseQuerys(socket) {
 
 }
 
-module.exports.onSocketInit = onSocketInit;
 module.exports.onWindroseQuerys = onWindroseQuerys;
 

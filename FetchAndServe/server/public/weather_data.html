@@ -8,34 +8,118 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <!--  jquery  -->
-        <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
 
-        <!--  bootstrap  -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+		<!--  Moment  -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 
-        <!--  HEADER MENU  -->
+		<!--  DateRange Picker  -->
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+		<!--  Popper  -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		
+
+		<!--  bootstrap  -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+		
+		
+		<!--  HEADER MENU  -->
         <div id="headerMenu"></div>
 
     </head>
 
     <body>
-        <div class="container-fluid">
-			<div class="justify-content-center">
+		<!--  Time Series Timeline Weather Data  -->
+        <div class="container-fluid mb-5">
+			<div class="">
+				<div class="row d-flex justify-content-center">
+					<h1>Weather data time-series</h1>
+				</div>
+				<div class="row d-flex justify-content-center">
+					<div class="col col-lg-2">
+						<h5>Daterange Picker:</h5>
+					</div>
+					<div class="col col-lg-2">
+						<input type="text" id="daterange-timeline" value=""/>
+					</div>
+					<div class="col col-lg-1" id="timeline-loading-logo"></div>
+				</div>
 				<div class="row d-flex justify-content-center">
 					<div id="timeline-div" style="width:100%; height:600px;"></div>
 				</div>
 			</div>
-        </div>
-
-        <div class="container-fluid">
-			<div class="justify-content-center">
+		</div>
+		<!--  Wind Rose  -->
+        <div class="container-fluid my-5">
+			<div class="">
+				<div class="row d-flex justify-content-center">
+					<h1>Windrose</h1>
+				</div>
+				<div class="row d-flex justify-content-center">
+						<div class="col col-lg-2">
+							<h5>Daterange Picker:</h5>
+						</div>
+						<div class="col col-lg-2">
+							<input type="text" id="daterange-windrose" value=""/>
+						</div>
+						<div class="col col-lg-1" id="windrose-loading-logo"></div>
+					</div>
 				<div class="row d-flex justify-content-center">
 					<div id="windrose-div" style="width:800px; height:600px"></div>
 				</div>
 			</div>
-        </div>
+		</div>
+		<!--  General stats  -->
+        <div class="container-fluid my-5">
+			<div class="">
+				<div class="row d-flex justify-content-center">
+					<table class="table">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">Average</th>
+								<th scope="col">Standard Deviation</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row">Humidity</th>
+								<th id="humidity-avg-month"> %</th>
+								<th></th>
+							</tr>
+							<tr>
+								<th scope="row">Pressure</th>
+								<th id="pressure-avg-month"> hPa</th>
+								<th></th>
+							</tr>
+							<tr>
+								<th scope="row">Rainfall</th>
+								<th id="rainfall-avg-month"> mm/h</th>
+								<th></th>
+							</tr>
+							<tr>
+								<th scope="row">Temperature</th>
+								<th id="temperature-avg-month"> &#8451</th>
+								<th></th>
+							</tr>
+							<tr>
+								<th scope="row">Wind</th>
+								<th id="wind-avg-month"> m/s</th>
+								<th></th>
+							</tr>
+							<tr>
+								<th scope="row">Gust</th>
+								<th id="gust-avg-month"> m/s</th>
+								<th></th>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
 
     </body>
 
@@ -54,8 +138,8 @@
         <!--  own JS  -->
         <script> $(function(){ $("#headerMenu").load("main_menu.html"); }); </script>
 
-        <script> 
-            var socket = io.connect('http://192.168.1.238:3000');
+        <script>
+            var socket = io.connect('http://213.113.170.233:3000');
 
             var colors = {
                 humidity: '#0000ff',
@@ -70,7 +154,8 @@
         </script>
 
         <script src="js/weather_data/timeline.js"></script>
-        <script src="js/weather_data/windrose.js"></script>
+		<script src="js/weather_data/windrose.js"></script>
+		<script src="js/weather_data/stats.js"></script>
 
 
     </footer>

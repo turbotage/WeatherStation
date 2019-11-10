@@ -1,51 +1,21 @@
 //structs
 var timeline = {
     weatherData: {
-        humidityChanged: false,
-        humidityStartDate: '2018-01-01 00:00:01',
-        humidityEndDate: '2019-01-01 00:00:01',
-        humidity: [],
-    
-        pressureChanged: false,
-        pressureStartDate: '2018-01-01 00:00:01',
-        pressureEndDate: '2019-01-01 00:00:01',
-        pressure: [],
-    
-        temperatureChanged: false,
-        temperatureStartDate: '2018-01-01 00:00:01',
-        temperatureEndDate: '2019-01-01 00:00:01',
-        temperature: [],
-    
-        rainfallChanged: false,
-        rainfallStartDate: '2018-01-01 00:00:01',
-        rainfallEndDate: '2019-01-01 00:00:01',
-        rainfall: [],
-    
-        windChanged: false,
-        windStartDate: '2018-01-01 00:00:01',
-        windEndDate: '2019-01-01 00:00:01',
-        wind: [],
-    
-        gustChanged: false,
-        gustStartDate: '2018-01-01 00:00:01',
-        gustEndDate: '2019-01-01 00:00:01',
-        gust: [],
-    
-        directionChanged: false,
-        directionStartDate: '2018-01-01 00:00:01',
-        directionEndDate: '2019-01-01 00:00:01',
-        direction: [],
+        
     },
     chartOptions: {
         chart: {
             zoomType: 'xy'
         },
         title: {
-            text: 'Weather Data'
+            text: ''
         },
         tooltip: {
             shared: false,
-        },
+		},
+		time: {
+			timezoneOffset: -60
+		},
         xAxis: {
             type: 'datetime',
             title: {
@@ -104,12 +74,15 @@ var timeline = {
         series: []
     },
     queryData: {
-        queryNumber: 7
-    },
+		startDate: '',
+		endDate: ''
+	},
+	queryNumber: 0,
+	queryGoal: 0,
     weatherTypes: ['humidity', 'pressure', 'temperature', 'rainfall', 'wind', 'gust', 'direction', 'windbarb']
 }
 
-//functions
+//functions (internal timeline)
 function getWeatherTypeIndex(type) {
     for (var i = 0; i < timeline.weatherTypes.length; i++) {
         if (type == timeline.weatherTypes[i]) {
@@ -133,43 +106,39 @@ function showYAxis(options, type) {
     }
 }
 
-function popDataSeries(options, type) {
-    var index = options.series.indexOf(type);
-    if (index > -1) {
-        array.splice(index, 1);
-    }
+
+function handleRefreshTimeline() {
+	//console.log("in handleRefreshTimeline");
+	timeline.queryNumber++;
+	//console.log(timeline.queryNumber);
+	if (timeline.queryNumber == timeline.queryGoal){
+		timeline.queryNumber = 0;
+		timeline.queryGoal = 0;
+		refreshChartTimeline();
+	}
 }
 
-function pushDataSeries(options, dataSeries) {
-    options.series.push(dataSeries);
+function popTimelineDataSeries(name) {
+	//console.log("in pop series");
+	//console.log(timeline.chartOptions.series);
+	for (var i = 0; i < timeline.chartOptions.series.length; i++){
+		if (timeline.chartOptions.series[i].name == name){
+			timeline.chartOptions.series.splice(i,1);
+			//console.log("found series to pop at:" + i);
+			break;
+		}
+	}
+	//console.log(timeline.chartOptions.series);
 }
 
-//onload
-//console.log('onload');
-//console.log(chartOptions);
-
-$(document).ready(function(){
-    console.log("on ready timeline");
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('humidity')].visible = true;
-    socket.emit('humidity-query-timeline', timeline.queryData);
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('pressure')].visible = true;
-    socket.emit('pressure-query-timeline', timeline.queryData);
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('temperature')].visible = true;
-    socket.emit('temperature-query-timeline', timeline.queryData);
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('rainfall')].visible = true;
-    socket.emit('rainfall-query-timeline', timeline.queryData);
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('wind')].visible = true;
-    socket.emit('wind-query-timeline', timeline.queryData);
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('gust')].visible = true;
-    socket.emit('gust-query-timeline', timeline.queryData);
-    timeline.chartOptions.yAxis[getWeatherTypeIndex('direction')].visible = true;
-    socket.emit('direction-query-timeline', timeline.queryData);
-});
+function pushTimelineDataSeries(series) {
+    timeline.chartOptions.series.push(series);
+}
 
 //socket events
 
 socket.on('humidity-resp-timeline', function(data){
-    console.log('humidity-resp-timeline');
+    //console.log('humidity-resp-timeline');
     var weatherType = 'humidity';
     var dataSeries = {
         name: 'Humidity',
@@ -183,12 +152,13 @@ socket.on('humidity-resp-timeline', function(data){
         hide: hideYAxis(timeline.chartOptions, weatherType),
         show: showYAxis(timeline.chartOptions, weatherType)
     }
-    popDataSeries(timeline.chartOptions, weatherType);
-    pushDataSeries(timeline.chartOptions, dataSeries);
+    popTimelineDataSeries(dataSeries.name);
+	pushTimelineDataSeries(dataSeries);
+	handleRefreshTimeline();
 });
 
 socket.on('pressure-resp-timeline', function(data) {
-    console.log('pressure-resp-timeline');
+    //console.log('pressure-resp-timeline');
     var weatherType = 'pressure';
     var dataSeries = {
         name: 'Pressure',
@@ -201,13 +171,14 @@ socket.on('pressure-resp-timeline', function(data) {
         },
         hide: hideYAxis(timeline.chartOptions, weatherType),
         show: showYAxis(timeline.chartOptions, weatherType)
-    }
-    popDataSeries(timeline.chartOptions, weatherType);
-    pushDataSeries(timeline.chartOptions, dataSeries);
+	}
+    popTimelineDataSeries(dataSeries.name);
+	pushTimelineDataSeries(dataSeries);
+	handleRefreshTimeline();
 });
 
 socket.on('temperature-resp-timeline', function(data){
-    console.log('temp-resp-timeline');
+    //console.log('temp-resp-timeline');
     var weatherType = 'temperature';
     var dataSeries = {
         name: 'Temperature',
@@ -221,12 +192,13 @@ socket.on('temperature-resp-timeline', function(data){
         hide: hideYAxis(timeline.chartOptions, weatherType),
         show: showYAxis(timeline.chartOptions, weatherType)
     }
-    popDataSeries(timeline.chartOptions, weatherType);
-    pushDataSeries(timeline.chartOptions, dataSeries);
+    popTimelineDataSeries(dataSeries.name);
+	pushTimelineDataSeries(dataSeries);
+	handleRefreshTimeline();
 });
 
 socket.on('rainfall-resp-timeline', function(data){
-    console.log('rainfall-resp-timeline');
+    //console.log('rainfall-resp-timeline');
     var weatherType = 'rainfall';
     var dataSeries = {
         name: 'Rainfall',
@@ -240,12 +212,13 @@ socket.on('rainfall-resp-timeline', function(data){
         hide: hideYAxis(timeline.chartOptions, weatherType),
         show: showYAxis(timeline.chartOptions, weatherType)
     }
-    popDataSeries(timeline.chartOptions, weatherType);
-    pushDataSeries(timeline.chartOptions, dataSeries);
+    popTimelineDataSeries(dataSeries.name);
+	pushTimelineDataSeries(dataSeries);
+	handleRefreshTimeline();
 });
 
 socket.on('gust-resp-timeline', function(data){
-    console.log('gust-resp-timeline');
+    //console.log('gust-resp-timeline');
     var weatherType = 'gust';
     var dataSeries = {
         name: 'Gust',
@@ -259,12 +232,13 @@ socket.on('gust-resp-timeline', function(data){
         hide: hideYAxis(timeline.chartOptions, weatherType),
         show: showYAxis(timeline.chartOptions, weatherType)
     }
-    popDataSeries(timeline.chartOptions, weatherType);
-    pushDataSeries(timeline.chartOptions, dataSeries);
+    popTimelineDataSeries(dataSeries.name);
+	pushTimelineDataSeries(dataSeries);
+	handleRefreshTimeline();
 });
 
 socket.on('wind-resp-timeline', function(data){
-    console.log('wind-resp-timeline');
+    //console.log('wind-resp-timeline');
     var windBarType = 'windbarb';
     var windType = 'wind';
     var windBarSeries = {
@@ -292,15 +266,17 @@ socket.on('wind-resp-timeline', function(data){
         hide: hideYAxis(timeline.chartOptions, windType),
         show: showYAxis(timeline.chartOptions, windType)
     }
-    popDataSeries(timeline.chartOptions, windBarType);
-    pushDataSeries(timeline.chartOptions, windBarSeries);
+    popTimelineDataSeries(windBarSeries.name);
+    pushTimelineDataSeries(windBarSeries);
 
-    popDataSeries(timeline.chartOptions, windType);
-    pushDataSeries(timeline.chartOptions, windSeries);
+    popTimelineDataSeries(windSeries.name);
+	pushTimelineDataSeries(windSeries);
+	
+	handleRefreshTimeline();
 });
 
 socket.on('direction-resp-timeline', function(data){
-    console.log('direction-resp-timeline');
+    //console.log('direction-resp-timeline');
     var weatherType = 'direction';
     var dataSeries = {
         name: 'Direction',
@@ -314,16 +290,79 @@ socket.on('direction-resp-timeline', function(data){
         hide: hideYAxis(timeline.chartOptions, weatherType),
         show: showYAxis(timeline.chartOptions, weatherType)
     }
-    popDataSeries(timeline.chartOptions, weatherType);
-    pushDataSeries(timeline.chartOptions, dataSeries);
+    popTimelineDataSeries(dataSeries.name);
+	pushTimelineDataSeries(dataSeries);
+	refreshChartTimeline();
 });
+
 
 socket.on('refresh-chart-timeline', function(data){
-    console.log('refresh-chart-timeline');
-    //console.log(chartOptions);
-    timeline.chart = new Highcharts.chart('timeline-div', timeline.chartOptions);
-    //console.log(timeline.chartOptions);
+    //console.log('refresh-chart-timeline');
+    handleRefreshTimeline();
 });
 
 
 
+
+function refreshChartTimeline() {
+	//console.log("in refreshChartTimeline");
+	//console.log(timeline.chartOptions);
+	$("#timeline-loading-logo").empty();
+	timeline.chart = new Highcharts.chart('timeline-div', timeline.chartOptions);
+}
+
+function queryUpdateAllTimeline() {
+	//start loading logo
+	$("#timeline-loading-logo").append("<div class=\"spinner-border\" role=\"status\">"
+		+ "<span class=\"sr-only\">Loading...</span></div>\"");
+
+	
+	timeline.queryNumber = 0;
+	timeline.queryGoal = 7;
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('humidity')].visible = true;
+    socket.emit('humidity-query-timeline', timeline.queryData);
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('pressure')].visible = true;
+    socket.emit('pressure-query-timeline', timeline.queryData);
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('temperature')].visible = true;
+    socket.emit('temperature-query-timeline', timeline.queryData);
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('rainfall')].visible = true;
+    socket.emit('rainfall-query-timeline', timeline.queryData);
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('wind')].visible = true;
+    socket.emit('wind-query-timeline', timeline.queryData);
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('gust')].visible = true;
+    socket.emit('gust-query-timeline', timeline.queryData);
+    timeline.chartOptions.yAxis[getWeatherTypeIndex('direction')].visible = true;
+    socket.emit('direction-query-timeline', timeline.queryData);
+}
+
+//on first load
+$(document).ready(function(){
+	timeline.queryData.startDate = moment().format('YYYY-MM-DD') + ':00:00:01';
+	timeline.queryData.endDate = moment().format('YYYY-MM-DD') + ':23:59:59';
+	queryUpdateAllTimeline();
+});
+
+//datepicking stuff
+
+$(function() {
+	$('#daterange-timeline').daterangepicker({
+		opens: 'left',
+		autoUpdateInfo: false,
+		startDate: moment().format('YYYY-MM-DD'),
+		endDate: moment().format('YYYY-MM-DD'),
+		locale: {
+			format: 'YYYY-MM-DD'
+		}
+	}, function(start, end, label) {
+		
+	});
+		
+	$("#daterange-timeline").on('apply.daterangepicker', function(ev, picker) {
+		timeline.queryData.startDate = picker.startDate.format('YYYY-MM-DD') + ':00:00:01';
+		console.log(timeline.queryData.startDate);
+		timeline.queryData.endDate = picker.endDate.format('YYYY-MM-DD') + ':23:59:59';
+		console.log(timeline.queryData.endDate);
+		queryUpdateAllTimeline();
+	});
+
+});
