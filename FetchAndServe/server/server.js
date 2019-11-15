@@ -18,9 +18,13 @@ app.use(express.static('public'));
 
 console.log("listening on https://localhost:" + webserverPort);
 
+console.log("before timeline");
 var timeline = require("./site_modules/timeline");
+console.log("before windrose");
 var windrose = require("./site_modules/windrose");
+console.log("before stats");
 var stats = require("./site_modules/stats");
+console.log("before io connection");
 
 io.on('connection', function(socket){
     //socket.emit('server-refresh', {type: 1});

@@ -1,113 +1,144 @@
-var random = require('random');
+// Datetime stuff
 var date = require('date-and-time');
-var settings = require('./settings');
-
-
-var SerialPort = require('serialport');
-
-var serialport = new SerialPort(settings.serialport, {
-	baudRate: settings.baudrate
-});
 
 function getDatetime() {
 	var now = new Date();
 	return date.format(now, 'YYYY-MM-DD:HH:mm:ss');
 }
 
-function updateHumidity() {
-	var humidity = random.uniform(last_humidity - 4, last_humidity + 4)();
-	while ((humidity < 0) || (100 < humidity)) {
-		humidity = random.uniform(last_humidity - 4, last_humidity + 4)();
-	}
-	last_humidity = humidity;
+//Database stuff
+var db = require('./db');
 
-	var sql =  "INSERT INTO humidity (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + humidity.toString() + ")";
+function submitQuery(sql, callback) {
+	db.query(sql, function(err, rows, result) {
+		if (err) throw err;
+		//console.log(result);
 
-	return sql;
+		//console.log('Successful query: ' + sql);
+
+		callback();
+	});
 }
 
-function updatePressure() {
-	var pressure = random.uniform(last_pressure - 3, last_pressure + 3)();
-	while ((pressure < 950) || (1050 < pressure)) {
-		pressure = random.uniform(last_pressure - 3, last_pressure + 2)();
-	}
-	last_pressure = pressure;
+// Serial stuff
+var arduino = require('./arduino');
 
-	var sql =  "INSERT INTO pressure (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + pressure.toString() + ")";
+arduino.addClassifier('humidity', function(lastTypeCmd){
+	return ('humidity' == lastTypeCmd);
+});
 
-	return sql;
+arduino.addClassifier('pressure', function(lastTypeCmd){
+	return ('pressure' == lastTypeCmd);
+});
+
+arduino.addClassifier('temperature', function(lastTypeCmd){
+	return ('temperature' == lastTypeCmd);
+});
+
+arduino.addClassifier('direction', function(lastTypeCmd){
+	return ('direction' == lastTypeCmd);
+});
+
+arduino.addClassifier('wind', function(lastTypeCmd){
+	return ('wind' == lastTypeCmd);
+});
+
+arduino.addClassifier('gust', function(lastTypeCmd){
+	return ('gust' == lastTypeCmd);
+});
+
+arduino.addClassifier('rainfall', function(lastTypeCmd){
+	return ('rainfall' == lastTypeCmd);
+});
+
+
+//Updating functions
+
+function updateHumidity(callback) {
+	arduino.once('humidity', function(humidity) {
+		var sql =  "INSERT INTO humidity (datetime,value) VALUES(\'" + getDatetime() 
+		+ "\'," + humidity + ")";
+
+		submitQuery(sql, callback);
+	});
+
+	arduino.send('1', 'humidity');
 }
 
-function updateTemperature() {
-	var temperature = random.uniform(last_temperature - 4, last_temperature + 4)();
-	while ((temperature < -30) || (35 < temperature)) {
-		temperature = random.uniform(last_temperature - 4, last_temperature + 4)();
-	}
-	last_temperature = temperature;
+function updatePressure(callback) {
+	arduino.once('pressure', function(pressure) {
+		var sql =  "INSERT INTO pressure (datetime,value) VALUES(\'" + getDatetime() 
+		+ "\'," + pressure + ")";
 
-	var sql =  "INSERT INTO temperature (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + temperature.toString() + ")";
+		submitQuery(sql, callback);
+	});
 
-	return sql;
+	arduino.send('2', 'pressure');
 }
 
-function updateWind() {
-	var direction = random.uniform(last_direction - 50, last_direction + 50)();
-	while ((direction < 0) || (360 < direction)){
-		direction = random.uniform(last_direction - 50, last_direction + 50)();
-	}
-	var wind = random.uniform(last_wind - 4, last_wind + 4)();
-	while ((wind < 0) || (35 < wind)) {
-		wind = random.uniform(last_wind - 4, last_wind + 4)();
-	}
+function updateTemperature(callback) {
+	arduino.once('temperature', function(temperature) {
+		var sql =  "INSERT INTO temperature (datetime,value) VALUES(\'" + getDatetime() 
+		+ "\'," + temperature + ")";
 
-	last_wind = wind;
-	last_direction = direction;
+		submitQuery(sql, callback);
+	});
 
+	arduino.send('3', 'temperature');
+}
+
+function updateWind(callback) {
+	arduino.once('direction', function(direction) {
+		
+		arduino.once('wind', function(wind){
+			var sql = "INSERT INTO wind (datetime,wind,direction) VALUES(\'" + getDatetime() 
+				+ "\'," + wind + "," + direction + ")";
+
+			submitQuery(sql, callback);
+		});
+
+		arduino.send('5', 'wind');
+	});
+
+	arduino.send('4', 'direction');
+
+	/*
 	sql = "INSERT INTO wind (datetime,wind,direction) VALUES(\'" + getDatetime() 
 		+ "\'," + wind.toString() + "," + direction.toString() + ")";
 
 	return sql;
+	*/
 }
 
-function updateGust() {
-	var gust = random.uniform(last_wind + 0.5, last_wind + 6)();
-	while ((gust < 0.4) || (45 < gust)) {
-		gust = random.uniform(last_wind + 0.5, last_wind + 6)();
-	}
+function updateGust(callback) {
+	arduino.once('gust', function(gust) {
+		var sql =  "INSERT INTO gust (datetime,value) VALUES(\'" + getDatetime() 
+		+ "\'," + gust + ")";
 
-	var sql =  "INSERT INTO gust (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + gust.toString() + ")";
+		submitQuery(sql, callback);
+	});
 
-	return sql;
+	arduino.send('6', 'gust');
 }
 
-function updateRainfall() {
-	var rainfall = random.uniform(last_rainfall - 0.6, last_rainfall + 0.5)();
-	while (last_rainfall > 30){
-		rainfall = random.uniform(last_rainfall - 0.6, last_rainfall + 0.5)();
-	}
-	if (last_rainfall < 0) {
-		rainfall = 0;
-	}
+function updateRainfall(callback) {
+	arduino.once('rainfall', function(rainfall) {
+		var sql =  "INSERT INTO rainfall (datetime,value) VALUES(\'" + getDatetime() 
+		+ "\'," + rainfall + ")";
 
-	last_rainfall = rainfall;
+		submitQuery(sql, callback);
+	});
 
-	var sql =  "INSERT INTO rainfall (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\', " + rainfall.toString() + ")";
-
-	return sql;
+	arduino.send('7', 'rainfall');
 }
 
 var last_error = "Manual Start";
-function updateFetchStart() {
+function updateFetchStart(callback) {
 	var sql =  "INSERT INTO fetchstart (datetime,lasterror) VALUES(\'" + getDatetime() 
 	+ "\',\'" + last_error + "\')";
-	return sql;
+	
+	submitQuery(sql, callback);
 }
-
 
 module.exports.updateHumidity = updateHumidity;
 module.exports.updatePressure = updatePressure;
@@ -116,3 +147,4 @@ module.exports.updateWind = updateWind;
 module.exports.updateGust = updateGust;
 module.exports.updateRainfall = updateRainfall;
 module.exports.updateFetchStart = updateFetchStart;
+

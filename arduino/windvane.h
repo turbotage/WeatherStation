@@ -27,6 +27,7 @@ private:
   		0, 0.38268343, 0.70710678, 0.92387953
 	  };
     */
+	
     float m_CorrespX[16] = { 
       1, 0.92387953, 0.70710678, 0.38268343,        // N, NNE, NE, ENE
       0, -0.38268343, -0.70710678, -0.92387953,     // E, ESE, SE, SSE
@@ -56,16 +57,11 @@ private:
     }
 
     double voltageReading() {
-      double vcc;
-      unsigned int ADCValue;
-      double voltage = 0.0f;
-      for (int i = 0; i < 4; ++i) {
-        vcc = readVcc()/1000.0;
+    	double vcc;
+    	unsigned int ADCValue;
+    	vcc = readVcc()/1000.0;
         ADCValue = analogRead(PIN_DIRECTION);
-        voltage += (ADCValue / 1024.0) * vcc;
-        delay(1);
-      }
-      return voltage / 4;
+        return (ADCValue / 1024.0) * vcc;
     }
 
     //int m_Sorted[16] = {65,83,92,126,185,245,288,407,464,603,634,706,788,830,889,947};

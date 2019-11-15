@@ -1,4 +1,15 @@
+// Random stuff
 var random = require('random');
+
+var last_humidity = random.uniform(0,100)();
+var last_pressure = random.uniform(990,1020)();
+var last_temperature = random.uniform(10,20)();
+var last_wind = random.uniform(0.2,15)();
+var last_direction = random.uniform(0,360)();
+var last_rainfall = 0;
+var last_error = "Manual Start";
+
+//Datetime stuff
 var date = require('date-and-time');
 
 function getDatetime() {
@@ -6,8 +17,21 @@ function getDatetime() {
 	return date.format(now, 'YYYY-MM-DD:HH:mm:ss');
 }
 
-var last_humidity = random.uniform(0,100)();
-function updateHumidity() {
+//Database stuff
+var db = require('./db');
+
+function submitQuery(sql, callback) {
+	db.query(sql, function(err, rows, result) {
+		if (err) throw err;
+		//console.log(result);
+
+		//console.log('Successful query: ' + sql);
+
+		callback();
+	});
+}
+
+function updateHumidity(callback) {
 	var humidity = random.uniform(last_humidity - 4, last_humidity + 4)();
 	while ((humidity < 0) || (100 < humidity)) {
 		humidity = random.uniform(last_humidity - 4, last_humidity + 4)();
@@ -17,11 +41,10 @@ function updateHumidity() {
 	var sql =  "INSERT INTO humidity (datetime,value) VALUES(\'" + getDatetime() 
 		+ "\'," + humidity.toString() + ")";
 
-	return sql;
+	submitQuery(sql, callback);
 }
 
-var last_pressure = random.uniform(990,1020)();
-function updatePressure() {
+function updatePressure(callback) {
 	var pressure = random.uniform(last_pressure - 3, last_pressure + 3)();
 	while ((pressure < 950) || (1050 < pressure)) {
 		pressure = random.uniform(last_pressure - 3, last_pressure + 2)();
@@ -31,11 +54,10 @@ function updatePressure() {
 	var sql =  "INSERT INTO pressure (datetime,value) VALUES(\'" + getDatetime() 
 		+ "\'," + pressure.toString() + ")";
 
-	return sql;
+	submitQuery(sql, callback);
 }
 
-last_temperature = random.uniform(10,20)();
-function updateTemperature() {
+function updateTemperature(callback) {
 	var temperature = random.uniform(last_temperature - 4, last_temperature + 4)();
 
 	while ((temperature < -30) || (35 < temperature)) {
@@ -46,12 +68,10 @@ function updateTemperature() {
 	var sql =  "INSERT INTO temperature (datetime,value) VALUES(\'" + getDatetime() 
 		+ "\'," + temperature.toString() + ")";
 
-	return sql;
+	submitQuery(sql, callback);
 }
 
-var last_wind = random.uniform(0.2,15)();
-var last_direction = random.uniform(0,360)();
-function updateWind() {
+function updateWind(callback) {
 	var direction = random.uniform(last_direction - 10, last_direction + 10)();
 	while ((direction < 0) || (360 < direction)){
 		direction = random.uniform(last_direction - 10, last_direction + 10)();
@@ -77,10 +97,10 @@ function updateWind() {
 	sql = "INSERT INTO wind (datetime,wind,direction) VALUES(\'" + getDatetime() 
 		+ "\'," + wind.toString() + "," + direction.toString() + ")";
 
-	return sql;
+	submitQuery(sql, callback);
 }
 
-function updateGust() {
+function updateGust(callback) {
 	var gust = random.uniform(last_wind + 0.5, last_wind + 6)();
 	while ((gust < 0.4) || (45 < gust)) {
 		gust = random.uniform(last_wind + 0.5, last_wind + 6)();
@@ -89,17 +109,16 @@ function updateGust() {
 	var sql =  "INSERT INTO gust (datetime,value) VALUES(\'" + getDatetime() 
 		+ "\'," + gust.toString() + ")";
 
-	return sql;
+	submitQuery(sql, callback);
 }
 
-var last_rainfall = 0;
-function updateRainfall() {
+function updateRainfall(callback) {
 	var rainfall = random.uniform(last_rainfall - 0.6, last_rainfall + 0.5)();
 	while (last_rainfall > 30){
 		rainfall = random.uniform(last_rainfall - 0.6, last_rainfall + 0.5)();
 	}
-	if (last_rainfall < 0) {
-		rainfall = 0;
+	if (last_rainfall <= 0.0) {
+		rainfall = 0.0;
 	}
 
 	last_rainfall = rainfall;
@@ -107,14 +126,13 @@ function updateRainfall() {
 	var sql =  "INSERT INTO rainfall (datetime,value) VALUES(\'" + getDatetime() 
 		+ "\', " + rainfall.toString() + ")";
 
-	return sql;
+	submitQuery(sql, callback);
 }
 
-var last_error = "Manual Start";
-function updateFetchStart() {
+function updateFetchStart(callback) {
 	var sql =  "INSERT INTO fetchstart (datetime,lasterror) VALUES(\'" + getDatetime() 
 	+ "\',\'" + last_error + "\')";
-	return sql;
+	submitQuery(sql, callback);
 }
 
 

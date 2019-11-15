@@ -12,7 +12,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].value])
             }
@@ -30,7 +31,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].value])
             }
@@ -48,7 +50,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].value])
             }
@@ -66,7 +69,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].value])
             }
@@ -84,7 +88,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].value])
             }
@@ -102,7 +107,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].wind, rows[i].direction])
             }
@@ -120,7 +126,8 @@ function onTimelineQuerys(socket) {
             if (err) throw err;
             var clientData = {
                 dataSeries: []
-            }
+			}
+			//console.log(rows.length);
             for(var i = 0; i < rows.length; i++){
                 clientData.dataSeries.push([rows[i].datetime, rows[i].direction])
             }

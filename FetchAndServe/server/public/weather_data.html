@@ -20,7 +20,7 @@
 		<!--  Popper  -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 		
-
+		
 		<!--  bootstrap  -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
@@ -52,6 +52,8 @@
 				</div>
 			</div>
 		</div>
+
+
 		<!--  Wind Rose  -->
         <div class="container-fluid my-5">
 			<div class="">
@@ -72,52 +74,203 @@
 				</div>
 			</div>
 		</div>
+
+
 		<!--  General stats  -->
         <div class="container-fluid my-5">
 			<div class="">
-				<div class="row d-flex justify-content-center">
-					<table class="table">
-						<thead>
-							<tr>
-								<th scope="col">#</th>
-								<th scope="col">Average</th>
-								<th scope="col">Standard Deviation</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th scope="row">Humidity</th>
-								<th id="humidity-avg-month"> %</th>
-								<th></th>
-							</tr>
-							<tr>
-								<th scope="row">Pressure</th>
-								<th id="pressure-avg-month"> hPa</th>
-								<th></th>
-							</tr>
-							<tr>
-								<th scope="row">Rainfall</th>
-								<th id="rainfall-avg-month"> mm/h</th>
-								<th></th>
-							</tr>
-							<tr>
-								<th scope="row">Temperature</th>
-								<th id="temperature-avg-month"> &#8451</th>
-								<th></th>
-							</tr>
-							<tr>
-								<th scope="row">Wind</th>
-								<th id="wind-avg-month"> m/s</th>
-								<th></th>
-							</tr>
-							<tr>
-								<th scope="row">Gust</th>
-								<th id="gust-avg-month"> m/s</th>
-								<th></th>
-							</tr>
-						</tbody>
-					</table>
+				<!--  daily Stats  -->
+				<div id="daily-stats" class="my-4">
+					<div class="row d-flex justify-content-center">
+						<h1>Today's Stats</h1>
+					</div>
+					<div class="row d-flex justify-content-center">
+						<table class="table">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Average</th>
+									<th scope="col">Standard Deviation</th>
+									<th scope="col">Max</th>
+									<th scope="col">Min</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th scope="row">Humidity</th>
+									<th id="humidity-avg-day"> %</th>
+									<th id="humidity-std-day"> %</th>
+									<th id="humidity-max-day"> %</th>
+									<th id="humidity-min-day"> %</th>
+								</tr>
+								<tr>
+									<th scope="row">Pressure</th>
+									<th id="pressure-avg-day"> hPa</th>
+									<th id="pressure-std-day"> hPa</th>
+									<th id="pressure-max-day"> hPa</th>
+									<th id="pressure-min-day"> hPa</th>
+								</tr>
+								<tr>
+									<th scope="row">Rainfall</th>
+									<th id="rainfall-avg-day"> mm/h</th>
+									<th id="rainfall-std-day"> mm/h</th>
+									<th id="rainfall-max-day"> mm/h</th>
+									<th id="rainfall-min-day"> mm/h</th>
+								</tr>
+								<tr>
+									<th scope="row">Temperature</th>
+									<th id="temperature-avg-day"> &#8451</th>
+									<th id="temperature-std-day"> &#8451</th>
+									<th id="temperature-max-day"> &#8451</th>
+									<th id="temperature-min-day"> &#8451</th>
+								</tr>
+								<tr>
+									<th scope="row">Wind</th>
+									<th id="wind-avg-day"> m/s</th>
+									<th id="wind-std-day"> m/s</th>
+									<th id="wind-max-day"> m/s</th>
+									<th id="wind-min-day"> m/s</th>
+								</tr>
+								<tr>
+									<th scope="row">Gust</th>
+									<th id="gust-avg-day"> m/s</th>
+									<th id="gust-std-day"> m/s</th>
+									<th id="gust-max-day"> m/s</th>
+									<th id="gust-min-day"> m/s</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
+
+				<!--  Monthly Stats  -->
+				<div id="monthly-stats" class="my-4">
+					<div class="row d-flex justify-content-center">
+						<h1>This Month's Stats</h1>
+					</div>
+					<div class="row d-flex justify-content-center">
+						<table class="table">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Average</th>
+									<th scope="col">Standard Deviation</th>
+									<th scope="col">Max</th>
+									<th scope="col">Min</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th scope="row">Humidity</th>
+									<th id="humidity-avg-month"> %</th>
+									<th id="humidity-std-month"> %</th>
+									<th id="humidity-max-month"> %</th>
+									<th id="humidity-min-month"> %</th>
+								</tr>
+								<tr>
+									<th scope="row">Pressure</th>
+									<th id="pressure-avg-month"> hPa</th>
+									<th id="pressure-std-month"> hPa</th>
+									<th id="pressure-max-month"> hPa</th>
+									<th id="pressure-min-month"> hPa</th>
+								</tr>
+								<tr>
+									<th scope="row">Rainfall</th>
+									<th id="rainfall-avg-month"> mm/h</th>
+									<th id="rainfall-std-month"> mm/h</th>
+									<th id="rainfall-max-month"> mm/h</th>
+									<th id="rainfall-min-month"> mm/h</th>
+								</tr>
+								<tr>
+									<th scope="row">Temperature</th>
+									<th id="temperature-avg-month"> &#8451</th>
+									<th id="temperature-std-month"> &#8451</th>
+									<th id="temperature-max-month"> &#8451</th>
+									<th id="temperature-min-month"> &#8451</th>
+								</tr>
+								<tr>
+									<th scope="row">Wind</th>
+									<th id="wind-avg-month"> m/s</th>
+									<th id="wind-std-month"> m/s</th>
+									<th id="wind-max-month"> m/s</th>
+									<th id="wind-min-month"> m/s</th>
+								</tr>
+								<tr>
+									<th scope="row">Gust</th>
+									<th id="gust-avg-month"> m/s</th>
+									<th id="gust-std-month"> m/s</th>
+									<th id="gust-max-month"> m/s</th>
+									<th id="gust-min-month"> m/s</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!--  Yearly Stats  -->
+				<div id="yearly-stats" class="my-4">
+					<div class="row d-flex justify-content-center">
+						<h1>This Year's Stats</h1>
+					</div>
+					<div class="row d-flex justify-content-center">
+						<table class="table">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Average</th>
+									<th scope="col">Standard Deviation</th>
+									<th scope="col">Max</th>
+									<th scope="col">Min</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th scope="row">Humidity</th>
+									<th id="humidity-avg-year"> %</th>
+									<th id="humidity-std-year"> %</th>
+									<th id="humidity-max-year"> %</th>
+									<th id="humidity-min-year"> %</th>
+								</tr>
+								<tr>
+									<th scope="row">Pressure</th>
+									<th id="pressure-avg-year"> hPa</th>
+									<th id="pressure-std-year"> hPa</th>
+									<th id="pressure-max-year"> hPa</th>
+									<th id="pressure-min-year"> hPa</th>
+								</tr>
+								<tr>
+									<th scope="row">Rainfall</th>
+									<th id="rainfall-avg-year"> mm/h</th>
+									<th id="rainfall-std-year"> mm/h</th>
+									<th id="rainfall-max-year"> mm/h</th>
+									<th id="rainfall-min-year"> mm/h</th>
+								</tr>
+								<tr>
+									<th scope="row">Temperature</th>
+									<th id="temperature-avg-year"> &#8451</th>
+									<th id="temperature-std-year"> &#8451</th>
+									<th id="temperature-max-year"> &#8451</th>
+									<th id="temperature-min-year"> &#8451</th>
+								</tr>
+								<tr>
+									<th scope="row">Wind</th>
+									<th id="wind-avg-year"> m/s</th>
+									<th id="wind-std-year"> m/s</th>
+									<th id="wind-max-year"> m/s</th>
+									<th id="wind-min-year"> m/s</th>
+								</tr>
+								<tr>
+									<th scope="row">Gust</th>
+									<th id="gust-avg-year"> m/s</th>
+									<th id="gust-std-year"> m/s</th>
+									<th id="gust-max-year"> m/s</th>
+									<th id="gust-min-year"> m/s</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
 			</div>
 		</div>
 
@@ -130,7 +283,8 @@
         <script src="http://code.highcharts.com/highcharts-more.js"></script>
         <script src="https://code.highcharts.com/modules/windbarb.js"></script>
         <script src="http://code.highcharts.com/modules/data.js"></script>
-        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/datagrouping.js"></script>
 
         <!-- socket.io -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.dev.js"></script>
@@ -139,7 +293,9 @@
         <script> $(function(){ $("#headerMenu").load("main_menu.html"); }); </script>
 
         <script>
-            var socket = io.connect('http://213.113.170.233:3000');
+			var socket = io.connect(location.host);
+			console.log(location.host);
+			//var socket = io.connect(location.hostname + '3000');
 
             var colors = {
                 humidity: '#0000ff',

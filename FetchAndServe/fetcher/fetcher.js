@@ -1,6 +1,5 @@
 
 var settings = require('./settings');
-var db = require('./db');
 
 /**
 function msleep(n) {
@@ -11,40 +10,49 @@ function sleep(n) {
 }
 */
 
-function submitQuery(sql) {
-	db.query(sql, function(err, rows, result) {
-		if (err) throw err;
-		//console.log(result);
-		console.log(sql);
-	});
-}
+var rainCounter = 0;
+
 
 var fetcher;
 
-if (!settings.gen_data) {
-	fetcher = require('./fetch_data');
+//callback is callback after updateGust except at raincycles when it is called after rainfall
+function updateAll(callback) {
+	fetcher.updateHumidity(function(){
+		fetcher.updatePressure(function(){
+			fetcher.updateTemperature(function(){
+				fetcher.updateWind(function(){
+					fetcher.updateGust(function(){
+						rainCounter++;
+						if (rainCounter == settings.rain_cycles){
+							fetcher.updateRainfall(function(){
+								callback();
+							});
+							rainCounter = 0;
+						}
+						else {
+							callback();
+						}
+					})
+				})
+			})
+		});
+	});
 }
-else {
+
+
+
+if (settings.gen_data) {
 	fetcher = require('./gen_data');
 }
-
-submitQuery(fetcher.updateFetchStart())
-
-function updateAllButRainfall() {
-	submitQuery(fetcher.updateHumidity());
-	submitQuery(fetcher.updatePressure());
-	submitQuery(fetcher.updateTemperature());
-	submitQuery(fetcher.updateGust());
-	submitQuery(fetcher.updateWind());
+else {
+	fetcher = require('./fetch_data');
 }
 
-function updateRainfall() {
-	submitQuery(fetcher.updateRainfall());
-}
-
-setInterval(updateAllButRainfall, settings.time*1000);
-setInterval(updateRainfall, 5*settings.time*1000);
-
+setInterval(function(){
+	updateAll(function(){
+		console.log("successfull fetch and db insert");
+	});
+}, settings.time*1000);
 
 /**
  * 

@@ -121,9 +121,9 @@ $(function() {
 	$("#daterange-windrose").on('apply.daterangepicker', function(ev, picker) {
 		//console.log(picker.startDate.format('YYYY-MM-DD') + "  -  " + picker.endDate.format('YYYY-MM-DD'));
 		windrose.queryData.startDate = picker.startDate.format('YYYY-MM-DD') + ':00:00:01';
-		console.log(windrose.queryData.startDate);
+		//console.log(windrose.queryData.startDate);
 		windrose.queryData.endDate = picker.endDate.format('YYYY-MM-DD') + ':23:59:59';
-		console.log(windrose.queryData.endDate);
+		//console.log(windrose.queryData.endDate);
 		queryUpdateWindrose();
 	});
 
