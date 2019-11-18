@@ -1,5 +1,5 @@
 
-#define PIN_RAINGAUGE 2 //Digital 3
+#include "def.h"
 
 class RainGauge {
 private:
@@ -9,7 +9,7 @@ private:
 public:
 
     void setup(volatile unsigned int* numRainGauge) {
-      m_NumRainGauge = numRainGauge;
+      	m_NumRainGauge = numRainGauge;
     }
 
     //=======================================================

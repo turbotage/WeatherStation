@@ -1,5 +1,5 @@
 DATABASES AND TYPES:
-If not given, standard values are none,
+If not given, standard values are none
 
 Username: weatherusr,
 Password: Weather!212
@@ -58,3 +58,6 @@ DatabaseName: weather
             Name: direction
             Type: float
     
+
+One database with the exact same properties as above but with name weather_test can be created to use for testing, i.e gen data to
+with fetcher and do some testing with the website and so on

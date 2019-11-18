@@ -1,5 +1,6 @@
-//#include <avr\wdt.h>
-#include "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/avr/wdt.h"
+//#include <avr\wdt.h>¨
+//#include "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/avr/wdt.h"
+#include <avr/wdt.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>
@@ -20,8 +21,8 @@ BME280 bme;
 volatile unsigned long nextAnemometerTime = 0;
 volatile unsigned long nextRainGaugeTime = 0;
 
+volatile unsigned int gustRevsSinceLastUpdate = 0;
 volatile unsigned int windSpeedRevs = 0;
-volatile unsigned int gustRevs[4] = {0,0,0,0};
 
 volatile unsigned int numRainDrops = 0;
 
@@ -32,10 +33,7 @@ volatile unsigned int numRainDrops = 0;
 void countAnemometer() {
     if(nextAnemometerTime == 0 || nextAnemometerTime < millis()){
         ++windSpeedRevs;
-		++gustRevs[0];
-        ++gustRevs[1];
-        ++gustRevs[2];
-        ++gustRevs[3];
+		++gustRevsSinceLastUpdate;
         nextAnemometerTime = millis() + 4; //this means that the windstation won't give accurate meassurments if wind speeds exceed 50 m/s;
     }
 }
@@ -45,7 +43,7 @@ void countAnemometer() {
 //=======================================================
 void countRainGauge() {
 	if (nextRainGaugeTime == 0 || nextRainGaugeTime) {
-    ++numRainDrops;
+    	++numRainDrops;
 		nextRainGaugeTime = millis() + 20;
 	}
 }
@@ -56,7 +54,8 @@ void softwareReset() {
 }
 
 void onLoop() {
-	anemometer.updateWindGust();
+	anemometer.updateWindGust(gustRevsSinceLastUpdate);
+	gustRevsSinceLastUpdate = 0;
 	vane.updateWindDirection(); //
 	bme.updateHumidityTempPressure(); //will do something every BME_UPDATE_TIME milliseconds
 	if (millis() > 42944960000) {
@@ -122,13 +121,13 @@ void setup(){
 	attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
 	
 	bme.setup();
-  anemometer.setup(&windSpeedRevs, gustRevs);
-  raingauge.setup(&numRainDrops);
+  	anemometer.setup(&windSpeedRevs);
+  	raingauge.setup(&numRainDrops);
 
-  delay(1000);
+  	delay(1000);
 }
 
 void loop(){
-  handleComms();
+  	handleComms();
 	onLoop();
 }
