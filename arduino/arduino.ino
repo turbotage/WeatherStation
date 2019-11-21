@@ -1,9 +1,6 @@
 //#include <avr\wdt.h>¨
 //#include "/Applications/Arduino.app/Contents/Java/hardware/tools/avr/avr/include/avr/wdt.h"
 #include <avr/wdt.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <SoftwareSerial.h>
 #include "raingauge.h"
 #include "anemometer.h"
 #include "windvane.h"
@@ -17,6 +14,9 @@ RainGauge raingauge;
 
 BME280 bme;
 
+
+unsigned int loopTime = 0;
+unsigned int highestLoopTime = 0;
 
 volatile unsigned long nextAnemometerTime = 0;
 volatile unsigned long nextRainGaugeTime = 0;
@@ -81,19 +81,25 @@ void handleComms() {
 				Serial.println(vane.getWindDirection());
 				break;
 			case '5':
-				Serial.println(anemometer.getWindSpeed());
+				Serial.println(anemometer.getWindSpeed(windSpeedRevs));
+				windSpeedRevs = 0;
 				break;
 			case '6':
 				Serial.println(anemometer.getGust());
 				break;
 			case '7':
-				Serial.println(raingauge.getRainFall());
+				Serial.println(raingauge.getRainFall(numRainDrops));
+				numRainDrops = 0;
 				break;
 			case 'E':
 				Serial.println("not implemented yet");
 				break;
 			case 'T':
 				Serial.println(millis());
+				break;
+			case 'L':
+				Serial.println(highestLoopTime);
+				highestLoopTime = 0;
 				break;
 			case 'M':
 				Serial.println("not implemented yet");
@@ -105,7 +111,7 @@ void handleComms() {
 			default:
 				Serial.println("NCC");
 		}
-  }
+  	}
 }
 
 //setup
@@ -116,18 +122,22 @@ void setup(){
 
 	digitalWrite(PIN_ANEMOMETER, HIGH);
 	digitalWrite(PIN_RAINGAUGE, HIGH);
-  
+	
 	attachInterrupt(digitalPinToInterrupt(PIN_ANEMOMETER), countAnemometer, FALLING);
 	attachInterrupt(digitalPinToInterrupt(PIN_RAINGAUGE), countRainGauge, FALLING);
 	
 	bme.setup();
-  	anemometer.setup(&windSpeedRevs);
-  	raingauge.setup(&numRainDrops);
+  	anemometer.setup();
+  	raingauge.setup();
 
-  	delay(1000);
 }
 
 void loop(){
+	loopTime = micros();
   	handleComms();
 	onLoop();
+	loopTime = micros()- loopTime;
+	if (loopTime > highestLoopTime){
+		highestLoopTime = loopTime;
+	}
 }

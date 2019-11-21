@@ -13,18 +13,29 @@
 Adafruit_BME280 bme(BME_CS,BME_MOSI,BME_MISO,BME_SCK);
 
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  if(!bme.begin()) {
-    Serial.println("BME not working!");
-  }
+	// put your setup code here, to run once:
+	Serial.begin(9600);
+	if(!bme.begin()) {
+		Serial.println("BME not working!");
+	}
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  delay(1000);
-  Serial.println(bme.readTemperature());
-  Serial.println(bme.readPressure() /1000.0f);
-  Serial.println(bme.readHumidity());
+  	if (Serial.available() > 0) {
+	  	int c = Serial.read();
+	  	switch (c) {
+		  	case '1':
+				Serial.println(bme.readTemperature());
+		  		break;
+			case '2':
+				Serial.println(bme.readPressure() /1000.0f);
+				break;
+			case '3':
+				Serial.println(bme.readHumidity());
+				break;
+		
+	  	}
+  	}
 }

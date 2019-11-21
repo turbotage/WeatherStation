@@ -1,31 +1,29 @@
 
 #include "def.h"
 
-#define GUST_CONSTANT (1.0f/(GUST_TIME / 1000.0f)) * 0.66698368f;
+#define GUST_CONSTANT 1000 * 0.66698368f / GUST_TIME
 
 class Anemometer {
 private:
     //wind speed
-    volatile unsigned int* m_WindSpeedRevs;
     unsigned long m_TimeAtWindUpdate = 0;
-    float m_LastWindSpeed = 1;
-
-
+    float m_LastWindSpeed = 0;
 
     //wind gust
     float m_HighestGust = 0;
     bool m_GustHasUpdated = false;
     unsigned long m_TimeAtLastGustUpdate = 0;
     int m_GustPeriodCounter = 0;
-	volatile unsigned int m_GustRevs[NUM_GUST_COUNTERS];
+	unsigned int m_GustRevs[NUM_GUST_COUNTERS];
 
 public:
 
-    void setup(volatile unsigned int* windSpeedRevs) {
+    void setup() {
 		for (int i = 0; i < NUM_GUST_COUNTERS; ++i){
-			gustRevs[i] = 0;
+			m_GustRevs[i] = 0;
 		}
-		m_WindSpeedRevs = windSpeedRevs;
+		m_TimeAtWindUpdate = millis();
+		m_TimeAtLastGustUpdate = millis();
     }
 
     //===============================================================
@@ -49,7 +47,7 @@ public:
                 if(m_GustPeriodCounter == NUM_GUST_COUNTERS){
                     m_GustPeriodCounter = 0;
                 }
-                m_TimeAtLastGustUpdate = timer;
+                m_TimeAtLastGustUpdate = millis();
             }
         }
         else {
@@ -61,18 +59,11 @@ public:
     // Calculate the wind speed, and display it (or log it, whatever).
     // 1 rev/sec = 1.492 mph = 2.40114125 kph, 0.6669836806 m/s
     //=======================================================
-    float getWindSpeed() {
-	    float windspeed = 0.001f*(0.66698368f * (*m_WindSpeedRevs)) / (millis() - m_TimeAtWindUpdate);
-	    //float timer = 0.00000001f;
-	    //timer += (millis() - m_TimeAtWindUpdate)/1000; //seconds since last update
-	    //windspeed /= timer;
-	    *m_WindSpeedRevs = 0;        // Reset counter
+    float getWindSpeed(unsigned int windSpeedRevs) {
+	    float windspeed = (1000.0f*0.66698368f * windSpeedRevs) / (millis() - m_TimeAtWindUpdate);
+
 	    m_TimeAtWindUpdate = millis(); //set last update to now so next  wind callculation will be since this one
-		/*
-	    if (windspeed > 160 || windspeed < 0) {
-		    return -1;
-	    }
-		*/
+
       	m_LastWindSpeed = windspeed;
 	    return windspeed;
     }

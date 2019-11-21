@@ -5,12 +5,12 @@
 
 //============================= ANEMOMETER ======================
 #define GUST_TIME 2000
-#define NUM_GUST_COUNTERS 16
+#define NUM_GUST_COUNTERS 32
 #define PIN_ANEMOMETER 2  //Digital 2
 
 
 //============================= RAINGAUGE =======================
-#define PIN_RAINGAUGE 2 //Digital 3
+#define PIN_RAINGAUGE 3 //Digital 3
 
 
 //============================ BME 280 ==========================

@@ -11,10 +11,6 @@ volatile unsigned long lastRainGaugeTime = 0;
 volatile unsigned long raingaugeTimeDifference = 0;
 volatile bool newRaingaugeTimeDifference = false;
 
-//=======================================================
-// Interrupt handler for anemometer. Called each time the reed
-// switch triggers (one revolution). won't work if windspeed exceed 166,7430555556 m/s
-//=======================================================
 void countAnemometer() {
 	currentAnemometerTime = micros();
 	anemometerTimeDifference = currentAnemometerTime - lastAnemometerTime;
@@ -22,15 +18,11 @@ void countAnemometer() {
 	newAnemometerTimeDifference = true;
 }
 
-//=======================================================
-// Interrupt handler for rain gauge. Called each time the reed
-// switch triggers (one drop).
-//=======================================================
 void countRainGauge() {
 	currentRaingaugeTime = micros();
 	raingaugeTimeDifference = currentRaingaugeTime - lastRainGaugeTime;
 	lastRainGaugeTime = currentRaingaugeTime;
-	newTimeDifference = true;
+	newRaingaugeTimeDifference = true;
 }
 
 void setup() {
