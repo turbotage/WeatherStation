@@ -18,8 +18,8 @@ BME280 bme;
 unsigned int loopTime = 0;
 unsigned int highestLoopTime = 0;
 
-volatile unsigned long nextAnemometerTime = 0;
-volatile unsigned long nextRainGaugeTime = 0;
+volatile unsigned long lastAnemometerTime = 0;
+volatile unsigned long lastRaingaugeTime = 0;
 
 volatile unsigned int gustRevsSinceLastUpdate = 0;
 volatile unsigned int windSpeedRevs = 0;
@@ -31,10 +31,10 @@ volatile unsigned int numRainDrops = 0;
 // switch triggers (one revolution). won't work if windspeed exceed 166,7430555556 m/s
 //=======================================================
 void countAnemometer() {
-    if(nextAnemometerTime == 0 || nextAnemometerTime < millis()){
+    if(lastRaingaugeTime == 0 || ((unsigned long)(millis() - lastAnemometerTime) > 4)){
         ++windSpeedRevs;
 		++gustRevsSinceLastUpdate;
-        nextAnemometerTime = millis() + 4; //this means that the windstation won't give accurate meassurments if wind speeds exceed 50 m/s;
+        lastAnemometerTime = millis();
     }
 }
 //=======================================================
@@ -42,9 +42,9 @@ void countAnemometer() {
 // switch triggers (one drop).
 //=======================================================
 void countRainGauge() {
-	if (nextRainGaugeTime == 0 || nextRainGaugeTime) {
+	if (lastRaingaugeTime == 0 || ((unsigned long)(millis() - lastRaingaugeTime) > 20)) {
     	++numRainDrops;
-		nextRainGaugeTime = millis() + 20;
+		lastRaingaugeTime = millis();
 	}
 }
 
@@ -58,9 +58,6 @@ void onLoop() {
 	gustRevsSinceLastUpdate = 0;
 	vane.updateWindDirection(); //
 	bme.updateHumidityTempPressure(); //will do something every BME_UPDATE_TIME milliseconds
-	if (millis() > 42944960000) {
-		softwareReset(); //resets the arduino after aprox 49 days and 17 hours
-	}
 }
 
 
@@ -136,7 +133,7 @@ void loop(){
 	loopTime = micros();
   	handleComms();
 	onLoop();
-	loopTime = micros()- loopTime;
+	loopTime = (unsigned long)(micros()- loopTime);
 	if (loopTime > highestLoopTime){
 		highestLoopTime = loopTime;
 	}

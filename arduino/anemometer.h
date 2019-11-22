@@ -33,7 +33,7 @@ public:
 		for (int i = 0; i < NUM_GUST_COUNTERS; ++i) {
 			m_GustRevs[i] += revsSinceLastUpdate;
 		}
-        unsigned long timer = millis() - m_TimeAtLastGustUpdate;
+        unsigned long timer = (unsigned long)(millis() - m_TimeAtLastGustUpdate);
         int timu = timer % (int)(GUST_TIME / NUM_GUST_COUNTERS);
         if ((timu >= 0) && (timu <= 20)) {
             if(!m_GustHasUpdated){
@@ -60,7 +60,7 @@ public:
     // 1 rev/sec = 1.492 mph = 2.40114125 kph, 0.6669836806 m/s
     //=======================================================
     float getWindSpeed(unsigned int windSpeedRevs) {
-	    float windspeed = (1000.0f*0.66698368f * windSpeedRevs) / (millis() - m_TimeAtWindUpdate);
+	    float windspeed = (1000.0f*0.66698368f * windSpeedRevs) / ((unsigned long)(millis() - m_TimeAtWindUpdate));
 
 	    m_TimeAtWindUpdate = millis(); //set last update to now so next  wind callculation will be since this one
 

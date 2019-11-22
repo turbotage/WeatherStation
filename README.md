@@ -1,14 +1,5 @@
 # WeatherStation
 
-### Wiring and Schematics
-[Wiring and Schematics](docs/SCHEMATICS.md)
-
-### Arduino Commands
-[Commands and expected respones](docs/ARDUINO.md)
-
-### OBSERVE
-All passwords and keys stored in plain text in the source will not be the same for the actual WeatherStation, and if you wish to use this project for your own weather-station. I suggest you change keys and passwords as well as mentioned in the, installing the software section (TODO). 
-
 ## Data collection and processing
 ##### WindBarb:
 Wind direction is given in degrees (0 to 360), 0 is northerly wind, i.e pointing to the south. The Windbarb can give 16 directions, {N,NNE,NE,ENE,E,ESE,SE,SSE,S,SSW,SW,WSW,W,WNW,NW,NNW}. See Wind-Vane section of SEN-80422 datasheet for more information. 
@@ -29,9 +20,24 @@ Units: [mm/h]. Implementation is straight forward following SEN-80422 datasheet.
 
 ### In data visualization
 
-
 ## Instructions
+
+### OBSERVE!!
+All passwords and keys stored in plain text in the source will not be the same for the actual WeatherStation, and if you wish to use this project for your own weather-station. I suggest you change keys and passwords as well as mentioned in the, installing the software section (TODO). Ofcourse not allowing public connections would resolve the possible security issues with using the same keys and password (depending on your LAN situation).
 
 ### Calibration of Winddir
 Calibrate by starting in North (i.e pointing the tip of the to the north), then go clockwise measuring voltages in every direction along the way. This can be done with test_winddir.ino, voltage array should correspond to m_Voltages in
 windvane.h (TODO) might be necassary to implement model
+
+### Wiring and Schematics
+[Wiring and Schematics](docs/SCHEMATICS.md)
+
+### Arduino Commands
+[Commands and expected respones](docs/ARDUINO.md)
+
+### Running the Software
+[Fetcher and Server, installation and running](docs/INSTALLING_SOFTWARE.md)
+
+
+### Database sturcture
+
