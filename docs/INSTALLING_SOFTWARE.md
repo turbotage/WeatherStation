@@ -2,16 +2,22 @@
 ## Fetcher dependencies
 ### Using the preconfig commands
 at bottom of /WeatherStation/ run
+
 chmod +x install_deps.sh
+
 ./install_deps.sh
 
 #### When running server
 screen -R server
+
 ./run_server.sh
+
 Ctrl+A+D (deattach)
 #### When running fetcher
 screen -R fetcher
+
 ./run_fetcher.sh
+
 Ctrl+A+D (deattach)
 
 ### Manuall stuff
