@@ -1,13 +1,13 @@
-rm -rf /FetchAndServe/fetcher/node_modules
-rm -rf /FetchAndServe/server/node_modules
-cd /FetchAndServe/fetcher/
+rm -rf FetchAndServe/fetcher/node_modules
+rm -rf FetchAndServe/server/node_modules
+cd FetchAndServe/fetcher/
 npm install mysql
 npm install minimist
 npm install random
 npm install date-and-time
 npm install serialport
 cd ..
-cd /server/
+cd server/
 npm install express
 npm install mysql
 npm install minimist
