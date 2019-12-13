@@ -51,83 +51,184 @@ arduino.addClassifier('rainfall', function(lastTypeCmd){
 	return ('rainfall' == lastTypeCmd);
 });
 
-
 //Updating functions
 
 function updateHumidity(callback) {
-	arduino.once('humidity', function(humidity) {
-		var sql =  "INSERT INTO humidity (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + humidity + ")";
+	var timeout = null;
 
-		submitQuery(sql, callback);
-	});
+	var listener = function(humidity) {
+		clearTimeout(timeout);
+		
+		var value = parseFloat(humidity);
+		//if values are incorrect don't push them to database
+		if ((value > 100.0) || (value < 0.0)) {
+			callback();
+		} else {
+			var sql =  "INSERT INTO humidity (datetime,value) VALUES(\'" + getDatetime() 
+				+ "\'," + humidity + ")";
+
+			submitQuery(sql, callback);
+		}
+	}
+
+	arduino.once('humidity', listener);
+
+	timeout = setTimeout(function(){
+		arduino.removeListener('humidity', listener);
+		callback();
+	}, 500);
 
 	arduino.send('1', 'humidity');
 }
 
 function updatePressure(callback) {
-	arduino.once('pressure', function(pressure) {
-		var sql =  "INSERT INTO pressure (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + pressure + ")";
+	var timeout = null;
 
-		submitQuery(sql, callback);
-	});
+	var listener = function(pressure) {
+		clearTimeout(timeout);
+		
+		var value = parseFloat(pressure);
+		//if values are incorrect don't push them to database
+		if ((value > 1100.0) || (value < 850.0)) {
+			callback();
+		} else {
+			var sql =  "INSERT INTO pressure (datetime,value) VALUES(\'" + getDatetime() 
+				+ "\'," + pressure + ")";
+
+			submitQuery(sql, callback);
+		}
+	}
+
+	arduino.once('pressure', listener);
+
+	timeout = setTimeout(function(){
+		arduino.removeListener('pressure', listener);
+		callback();
+	}, 500);
 
 	arduino.send('2', 'pressure');
 }
 
 function updateTemperature(callback) {
-	arduino.once('temperature', function(temperature) {
-		var sql =  "INSERT INTO temperature (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + temperature + ")";
+	var timeout = null;
 
-		submitQuery(sql, callback);
-	});
+	var listener = function(temperature) {
+		clearTimeout(timeout);
+		
+		var value = parseFloat(temperature);
+		//if values are incorrect don't push them to database
+		if ((value > 50.0) || (value < -80.0)) {
+			callback();
+		} else {
+			var sql =  "INSERT INTO temperature (datetime,value) VALUES(\'" + getDatetime() 
+				+ "\'," + temperature + ")";
+
+			submitQuery(sql, callback);
+		}
+	}
+
+	arduino.once('temperature', listener);
+
+	timeout = setTimeout(function(){
+		arduino.removeListener('temperature', listener);
+		callback();
+	}, 500);
 
 	arduino.send('3', 'temperature');
 }
 
 function updateWind(callback) {
-	arduino.once('direction', function(direction) {
+	var timeout1 = null;
+	var timeout2 = null;
+	var dir = null;
+
+	var listener2 = function(wind){
+		var windF = parseFloat(wind);
+		var dirF = parseFloat(dir);
 		
-		arduino.once('wind', function(wind){
+		if ((windF > 60.0) || (windF < 0.0)) {
+			if ((dirF > 360.0) || (dirF < 0.0)) {
+				callback();
+			}
+		} else {
 			var sql = "INSERT INTO wind (datetime,wind,direction) VALUES(\'" + getDatetime() 
-				+ "\'," + wind + "," + direction + ")";
+				+ "\'," + wind + "," + dir + ")";
 
 			submitQuery(sql, callback);
-		});
+		}
+	}
+
+	var listener1 = function(direction) {
+		dir = direction;
+
+		arduino.once('wind', listener2);
 
 		arduino.send('5', 'wind');
-	});
+	}
+
+	arduino.once('direction', listener1);
+
+	timeout = setTimeout(function(){
+		arduino.removeListener('direction', listener1);
+		arduino.removeListener('wind', listener2);
+		callback();
+	}, 500);
 
 	arduino.send('4', 'direction');
-
-	/*
-	sql = "INSERT INTO wind (datetime,wind,direction) VALUES(\'" + getDatetime() 
-		+ "\'," + wind.toString() + "," + direction.toString() + ")";
-
-	return sql;
-	*/
 }
 
 function updateGust(callback) {
-	arduino.once('gust', function(gust) {
-		var sql =  "INSERT INTO gust (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + gust + ")";
+	var timeout = null;
 
-		submitQuery(sql, callback);
-	});
+	var listener = function(gust) {
+		clearTimeout(timeout);
+		
+		var value = parseFloat(gust);
+		//if values are incorrect don't push them to database
+		if ((value > 100.0) || (value < 0)) {
+			callback();
+		} else {
+			var sql =  "INSERT INTO gust (datetime,value) VALUES(\'" + getDatetime() 
+				+ "\'," + gust + ")";
+
+			submitQuery(sql, callback);
+		}
+	}
+
+	arduino.once('gust', listener);
+
+	timeout = setTimeout(function(){
+		arduino.removeListener('temperature', listener);
+		callback();
+	}, 500);
 
 	arduino.send('6', 'gust');
 }
 
 function updateRainfall(callback) {
-	arduino.once('rainfall', function(rainfall) {
-		var sql =  "INSERT INTO rainfall (datetime,value) VALUES(\'" + getDatetime() 
-		+ "\'," + rainfall + ")";
+	var timeout = null;
 
-		submitQuery(sql, callback);
-	});
+	var listener = function(rainfall) {
+		clearTimeout(timeout);
+		
+		var value = parseFloat(rainfall);
+		//if values are incorrect don't push them to database
+		if ((value > 50) || (value < 0)) {
+			callback();
+		} else {
+			var sql =  "INSERT INTO rainfall (datetime,value) VALUES(\'" + getDatetime() 
+				+ "\'," + rainfall + ")";
+
+			submitQuery(sql, callback);
+		}
+	}
+
+	arduino.once('rainfall', listener);
+
+	timeout = setTimeout(function(){
+		arduino.removeListener('rainfall', listener);
+		callback();
+	}, 500);
 
 	arduino.send('7', 'rainfall');
 }

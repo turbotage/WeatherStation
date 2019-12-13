@@ -14,7 +14,7 @@
 
 
 //============================ BME 280 ==========================
-#define BME_UPDATE_TIME 10000 //meassurements every BME_UPDATE_TIME for humidity, pressure and temperature
+#define BME_UPDATE_TIME 20000 //meassurements every BME_UPDATE_TIME for humidity, pressure and temperature
 #define SEALEVELPRESSURE_HPA (1013.25)
 //Pins
 #define BME_CS 10

@@ -19,7 +19,7 @@ private:
 public:
 
     void setup() {
-		for (int i = 0; i < NUM_GUST_COUNTERS; ++i){
+		for (int i = 0; i < NUM_GUST_COUNTERS; ++i) {
 			m_GustRevs[i] = 0;
 		}
 		m_TimeAtWindUpdate = millis();
