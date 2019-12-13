@@ -50,12 +50,12 @@ npm install socket.<nolink>io
 ### Fetcher
 
 ##### test
-node .\fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather_test --gen_data --time 300
+node fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather_test --gen_data --time 300
 ##### real deal
-node .\fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather --serial_port "/dev/ttyACM0" --time 300
+node fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather --serial_port "/dev/ttyACM0" --time 300
 
 ### Server
 ##### test
-node .\server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather_test
+node server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather_test
 ##### real deal
-node .\server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather
+node server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather
