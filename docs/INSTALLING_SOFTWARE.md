@@ -10,17 +10,23 @@ source install_deps.sh
 #### When running server
 screen -R server
 
-source run_server.sh
+Inside /WeatherStation/FetchAndServe/server/ run
+
+./run_server.sh
 
 Ctrl+A+D (deattach)
 #### When running fetcher
 screen -R fetcher
 
-source run_fetcher.sh
+Inside /WeatherStation/FetchAndServe/fetcher/ run
+
+sudo ./run_fetcher.sh
 
 Ctrl+A+D (deattach)
 
-### Manuall stuff
+### Manuall stuff (if you can't do the things above)
+npm install -g forever
+
 #### navigate to fetcher directory and run these
 
 npm install mysql
@@ -50,9 +56,9 @@ npm install socket.<nolink>io
 ### Fetcher
 
 ##### test
-node fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather_test --gen_data --time 300
+node fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather_test --gen_data --time 600
 ##### real deal
-node fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather --serial_port "/dev/ttyACM0" --time 300
+node fetcher.js  --db_user weatherusr --db_pass Weather!212 --db_name weather --serial_port "/dev/ttyACM0" --time 600
 
 ### Server
 ##### test
