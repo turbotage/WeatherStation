@@ -1,1 +1,1 @@
-forever start -o server_test.log node server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather_test
+forever start -o server_test.log server.js --db_host localhost --db_user weatherusr --db_pass Weather!212 --db_name weather_test

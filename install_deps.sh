@@ -1,6 +1,5 @@
 rm -rf FetchAndServe/fetcher/node_modules
 rm -rf FetchAndServe/server/node_modules
-npm install -g forever
 cd FetchAndServe/fetcher/
 npm install forever
 npm install mysql
