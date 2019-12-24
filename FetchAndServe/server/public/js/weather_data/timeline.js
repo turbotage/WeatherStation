@@ -36,7 +36,9 @@ var timeline = {
             title: {
                 text: 'Time'
             },
-            offset: 40
+			offset: 40,
+			minPadding: 0.02,
+			maxPadding: 0.02
         },
         yAxis: [
             { //Humidity
