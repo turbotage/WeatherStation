@@ -21,11 +21,16 @@
     </head>
 
     <body>
-
-    </body>
+		<div class="embed-responsive embed-responsive-1by1">
+			<iframe id="camera-frame" class="embed-responsive-item" src=""></iframe>
+		</div>
+	</body>
 
     <footer>
 
+		<script>
+			$(function(){ $("#camera-frame").attr("src", location.host.substring(0, location.host.length-4) + "8081");
+		</script>
         <!--  own JS  -->
         <script> $(function(){ $("#headerMenu").load("main_menu.html"); }); </script>
 
