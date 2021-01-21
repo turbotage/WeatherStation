@@ -13,6 +13,6 @@
     "express": "^4.16.4",
     "minimist": "^1.2.3",
     "mysql": "github:mysqljs/mysql",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.4.0"
   }
 }
