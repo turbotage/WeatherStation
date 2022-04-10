@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "minimist": "^1.2.3",
+    "minimist": "^1.2.6",
     "mysql": "github:mysqljs/mysql",
     "socket.io": "^2.2.0"
   }
